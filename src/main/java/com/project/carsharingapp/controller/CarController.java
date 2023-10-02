@@ -4,8 +4,9 @@ import com.project.carsharingapp.dto.car.CarDto;
 import com.project.carsharingapp.dto.car.CreateCarRequestDto;
 import com.project.carsharingapp.dto.car.UpdateCarRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,14 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Car management",
+        description = "Endpoints for managing cars")
 @RestController
 @RequestMapping(value = "/cars")
 public class CarController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Get all cars",
-            description = "Get list of all cars")
+    @Operation(summary = "Save new car",
+            description = "Save new car")
     public CarDto add(@RequestBody @Valid CreateCarRequestDto requestDto) {
         return null;
     }
