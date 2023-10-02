@@ -36,7 +36,7 @@ public class Car {
     @PositiveOrZero
     @Column(nullable = false)
     private BigDecimal dailyFee;
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
     public enum CarType {
