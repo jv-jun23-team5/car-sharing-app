@@ -34,7 +34,7 @@ public class User {
     private String lastName;
     @Column(nullable = false)
     private String password;
-    private String telegramChatId;
+    private Long telegramChatId;
     @Column(nullable = false)
     @ManyToMany
     @JoinTable(name = "user_roles",
