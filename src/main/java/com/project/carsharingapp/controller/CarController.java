@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/cars")
 public class CarController {
     private final CarService carService;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Save new car",
@@ -69,3 +70,4 @@ public class CarController {
         carService.delete(id);
     }
 }
+
