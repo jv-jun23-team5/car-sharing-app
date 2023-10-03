@@ -1,6 +1,6 @@
 package com.project.carsharingapp.dto.user;
 
-import com.project.carsharingapp.model.RoleName;
+import com.project.carsharingapp.model.Role;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
