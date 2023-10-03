@@ -3,7 +3,7 @@ package com.project.carsharingapp.controller;
 import com.project.carsharingapp.dto.user.UpdateUserProfileRequestDto;
 import com.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
 import com.project.carsharingapp.dto.user.UserDto;
-import com.project.carsharingapp.services.UserService;
+import com.project.carsharingapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
