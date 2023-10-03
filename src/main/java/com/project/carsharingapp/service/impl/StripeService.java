@@ -1,21 +1,16 @@
 package com.project.carsharingapp.service.impl;
 
-import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.service.PaymentAmountHandler;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Price;
-import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,7 +51,8 @@ public class StripeService {
                                         SessionCreateParams.LineItem.PriceData.builder()
                                                 .setCurrency(DEFAULT_CURRENCY)
                                                 .setProductData(
-                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                        SessionCreateParams.LineItem.PriceData
+                                                                .ProductData.builder()
                                                                 .setName(productName)
                                                                 .build()
                                                 )

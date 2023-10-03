@@ -10,7 +10,10 @@ import com.project.carsharingapp.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,6 +46,11 @@ public class PaymentServiceImpl implements PaymentService {
         );
         payment.setStatus(Payment.Status.PAID);
         return paymentRepository.save(payment);
+    }
+
+    @Override
+    public List<Payment> getAll(Pageable pageable) {
+        return paymentRepository.findAll(pageable).stream().collect(Collectors.toList());
     }
 
     private Payment generatePayment(Session session, Rental rental, Payment.Type type) {
