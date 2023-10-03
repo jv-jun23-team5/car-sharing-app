@@ -1,16 +1,21 @@
 package com.project.carsharingapp.service.impl;
 
+import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.service.PaymentAmountHandler;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Price;
+import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,9 +24,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class StripeService {
+    private static final String DEFAULT_URL_PART = "/api/payments";
     private static final String SUCCESS_ENDPOINT = "success";
     private static final String CANCEL_ENDPOINT = "cancel";
     private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
+    private static final String DEFAULT_CURRENCY = "USD";
     private final PaymentAmountHandlerStrategy handler;
     @Value("${stripe.secret}")
     private String secretKey;
@@ -36,6 +43,7 @@ public class StripeService {
     }
 
     public Session createSession(Rental rental, Payment.Type type) throws StripeException {
+        String productName = rental.getCar().getModel();
         Long price = calculateTotalAmount(rental, type);
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -43,9 +51,18 @@ public class StripeService {
                 .setCancelUrl(createUrl(CANCEL_ENDPOINT))
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
+                                .setPriceData(
+                                        SessionCreateParams.LineItem.PriceData.builder()
+                                                .setCurrency(DEFAULT_CURRENCY)
+                                                .setProductData(
+                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                .setName(productName)
+                                                                .build()
+                                                )
+                                                .setUnitAmount(price)
+                                                .build()
+                                )
                                 .setQuantity(STANDARD_QUANTITY_OF_RENTAL_CART)
-                                .setPrice(String.valueOf(price))
-
                                 .build()
                 )
                 .build();
@@ -58,7 +75,7 @@ public class StripeService {
                 .scheme("http")
                 .host(host)
                 .port(port)
-                .path("/" + type)
+                .path(DEFAULT_URL_PART + "/" + type)
                 .build()
                 .encode()
                 .toUriString();

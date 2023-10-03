@@ -2,12 +2,14 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
-import java.util.List;
-import javax.validation.Valid;
-
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.service.PaymentService;
+import java.net.URI;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,10 +28,12 @@ public class PaymentController {
     }
 
     @PostMapping
-    public Payment create(
+    public ResponseEntity<Object> create(
             @RequestBody @Valid CreatePaymentSessionRequestDto requestDto
     ) {
-        return paymentService.create(requestDto);
+        Payment payment = paymentService.create(requestDto);
+        URI url = URI.create(payment.getSessionUrl());
+        return ResponseEntity.status(HttpStatus.FOUND).location(url).build();
     }
 
     @GetMapping("/success")
