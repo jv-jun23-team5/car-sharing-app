@@ -5,7 +5,7 @@ import com.project.carsharingapp.dto.rental.RentalDto;
 import com.project.carsharingapp.dto.rental.SetActualReturnDateRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,11 +46,12 @@ public class RentalController {
         return null;
     }
 
-    @PostMapping
+    @PostMapping("/{returnDate}")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Set actual return date",
             description = "Set actual return date and increase car inventory by 1")
-    public RentalDto setActualReturnDay(@RequestBody @Valid SetActualReturnDateRequestDto requestDto) {
+    public RentalDto setActualReturnDay(@RequestBody
+                                            @Valid SetActualReturnDateRequestDto returnDate) {
         return null;
     }
 }
