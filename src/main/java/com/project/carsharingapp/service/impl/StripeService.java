@@ -2,17 +2,27 @@ package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
+import com.project.carsharingapp.service.PaymentAmountHandler;
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
+@RequiredArgsConstructor
 public class StripeService {
-    private static final BigDecimal FINE_MULTIPLIER = BigDecimal.valueOf(1.25);
+    private static final String SUCCESS_ENDPOINT = "success";
+    private static final String CANCEL_ENDPOINT = "cancel";
+    private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
+    private final PaymentAmountHandlerStrategy handler;
     @Value("${stripe.secret}")
     private String secretKey;
     @Value("${app.host}")
@@ -25,8 +35,22 @@ public class StripeService {
         Stripe.apiKey = secretKey;
     }
 
-    public Session createSession(Rental rental, Payment.Type type) {
-        return null;
+    public Session createSession(Rental rental, Payment.Type type) throws StripeException {
+        Long price = calculateTotalAmount(rental, type);
+        SessionCreateParams params = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl(createUrl(SUCCESS_ENDPOINT))
+                .setCancelUrl(createUrl(CANCEL_ENDPOINT))
+                .addLineItem(
+                        SessionCreateParams.LineItem.builder()
+                                .setQuantity(STANDARD_QUANTITY_OF_RENTAL_CART)
+                                .setPrice(String.valueOf(price))
+
+                                .build()
+                )
+                .build();
+
+        return Session.create(params);
     }
 
     private String createUrl(String type) {
@@ -40,7 +64,16 @@ public class StripeService {
                 .toUriString();
     }
 
-    private BigDecimal calculateTotalAmount(Rental rental, Payment.Type type) {
-        return null;
+    private Long calculateTotalAmount(Rental rental, Payment.Type type) {
+        PaymentAmountHandler amountHandler = handler.getHandler(type);
+        int rentalDays = getNumberOfRentalDays(rental);
+        BigDecimal dailyFee = rental.getCar().getDailyFee();
+        return amountHandler.getPaymentAmount(dailyFee, rentalDays);
+    }
+
+    private int getNumberOfRentalDays(Rental rental) {
+        LocalDate actualReturnDate = rental.getActualReturnDate().toLocalDate();
+        LocalDate rentalDate = rental.getRentalDate().toLocalDate();
+        return Period.between(rentalDate, actualReturnDate).getDays();
     }
 }

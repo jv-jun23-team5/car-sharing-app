@@ -4,6 +4,10 @@ import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
 import java.util.List;
 import javax.validation.Valid;
+
+import com.project.carsharingapp.model.Payment;
+import com.project.carsharingapp.service.PaymentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/payments")
+@RequiredArgsConstructor
 public class PaymentController {
+    private final PaymentService paymentService;
 
     @GetMapping
     public List<PaymentResponseDto> getAll() {
@@ -20,19 +26,19 @@ public class PaymentController {
     }
 
     @PostMapping
-    public PaymentResponseDto create(
+    public Payment create(
             @RequestBody @Valid CreatePaymentSessionRequestDto requestDto
     ) {
-        return new PaymentResponseDto();
+        return paymentService.create(requestDto);
     }
 
     @GetMapping("/success")
-    private void redirectToSuccessPage() {
-
+    private String redirectToSuccessPage() {
+        return "success";
     }
 
     @GetMapping("/cancel")
-    private void redirectToFailedPage() {
-
+    private String redirectToFailedPage() {
+        return "cancel";
     }
 }

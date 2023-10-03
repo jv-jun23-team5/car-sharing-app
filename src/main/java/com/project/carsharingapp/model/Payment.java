@@ -31,7 +31,7 @@ public class Payment {
     private Type type;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id", nullable = false)
-    private Rental rentalId;
+    private Rental rental;
     @Column(name = "session_url", nullable = false)
     private String sessionUrl;
     @Column(name = "session_id", nullable = false)
