@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class NotificationService extends TelegramLongPollingBot {
     private final TelegramBotConfig config;
     private final UserRepository userRepository;
+
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -24,6 +25,8 @@ public class NotificationService extends TelegramLongPollingBot {
             switch (messageText) {
                 case "/start":
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                    break;
+                default:
                     break;
             }
             if (!messageText.startsWith("/")) {
@@ -61,9 +64,9 @@ public class NotificationService extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String firstName) {
-         String answer = "Hi, " + firstName + ", nice to meet you! \n"
+        String answer = "Hi, " + firstName + ", nice to meet you! \n"
                  + "Enter your username to get started:";
-         sendMessage(chatId, answer);
+        sendMessage(chatId, answer);
 
     }
 
