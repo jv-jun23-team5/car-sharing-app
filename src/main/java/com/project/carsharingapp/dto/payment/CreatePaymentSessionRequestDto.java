@@ -1,9 +1,7 @@
 package com.project.carsharingapp.dto.payment;
 
-import com.project.carsharingapp.model.Payment;
-import lombok.Data;
-
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class CreatePaymentSessionRequestDto {

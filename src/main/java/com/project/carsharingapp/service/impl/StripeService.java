@@ -5,11 +5,10 @@ import com.project.carsharingapp.model.Rental;
 import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import jakarta.annotation.PostConstruct;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.math.BigDecimal;
 
 @Service
 public class StripeService {
@@ -20,7 +19,6 @@ public class StripeService {
     private String host;
     @Value("${app.port}")
     private Integer port;
-
 
     @PostConstruct
     public void init() {
