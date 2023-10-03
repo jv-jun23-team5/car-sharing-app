@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping(value = "/cars")
 public class CarController {
-    private final CarService carService;
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Save new car",
