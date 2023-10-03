@@ -39,6 +39,7 @@ public class PaymentController {
     ) {
         Payment payment = paymentService.create(requestDto);
         URI url = URI.create(payment.getSessionUrl());
+        System.out.println(url);
         return ResponseEntity.status(HttpStatus.FOUND).location(url).build();
     }
 
