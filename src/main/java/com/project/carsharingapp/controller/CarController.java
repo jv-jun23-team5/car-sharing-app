@@ -70,4 +70,3 @@ public class CarController {
         carService.delete(id);
     }
 }
-

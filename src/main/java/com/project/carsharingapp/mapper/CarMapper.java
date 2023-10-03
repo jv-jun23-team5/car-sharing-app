@@ -12,6 +12,4 @@ public interface CarMapper {
     Car toEntity(CreateCarRequestDto createCarRequestDto);
 
     CarDto toDto(Car car);
-
-    List<CarDto> toDtoList(List<Car> cars);
 }
