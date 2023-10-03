@@ -11,5 +11,4 @@ public interface PaymentService {
     Payment updateStatus(String sessionId);
 
     List<Payment> getAll(Pageable pageable);
-
 }
