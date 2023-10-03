@@ -1,6 +1,6 @@
 package com.project.carsharingapp.dto.user;
 
-import com.project.carsharingapp.model.RoleName;
+import com.project.carsharingapp.model.Role;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class UpdateUserRoleRequestDto {
     @NotNull
-    private RoleName role;
+    private Role.RoleName role;
 }
