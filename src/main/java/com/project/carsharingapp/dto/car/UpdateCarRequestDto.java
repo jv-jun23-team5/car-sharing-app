@@ -18,14 +18,11 @@ public class UpdateCarRequestDto {
     @NotNull
     @Length(min = 1, max = 255)
     private String brand;
-    @NotBlank
     @NotNull
     @Min(0)
     private Integer inventory;
-    @NotBlank
     @NotNull
     private Car.CarType carType;
-    @NotBlank
     @Min(0)
     private BigDecimal dailyFee;
 }
