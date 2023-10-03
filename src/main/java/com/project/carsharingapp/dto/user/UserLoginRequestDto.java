@@ -1,0 +1,12 @@
+package com.project.carsharingapp.dto.user;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+
+public class UserLoginRequestDto {
+    @NotEmpty
+    @Size(min = 8, max = 20)
+    private String email;
+
+    private String password;
+}
