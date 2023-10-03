@@ -25,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class StripeService {
     private static final String DEFAULT_URL_PART = "/api/payments";
+
     private static final String SUCCESS_ENDPOINT = "success";
     private static final String CANCEL_ENDPOINT = "cancel";
     private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
@@ -76,8 +77,8 @@ public class StripeService {
                 .host(host)
                 .port(port)
                 .path(DEFAULT_URL_PART + "/" + type)
+                .query("sessionId={CHECKOUT_SESSION_ID}")
                 .build()
-                .encode()
                 .toUriString();
     }
 

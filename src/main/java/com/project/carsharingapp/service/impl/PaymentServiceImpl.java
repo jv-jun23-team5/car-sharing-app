@@ -36,6 +36,15 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
+    @Override
+    public Payment updateStatus(String sessionId) {
+        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a Payment by the session")
+        );
+        payment.setStatus(Payment.Status.PAID);
+        return paymentRepository.save(payment);
+    }
+
     private Payment generatePayment(Session session, Rental rental, Payment.Type type) {
         Payment payment = new Payment();
         payment.setStatus(Payment.Status.PENDING);
