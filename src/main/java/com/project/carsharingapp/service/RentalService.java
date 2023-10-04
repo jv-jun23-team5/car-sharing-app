@@ -1,18 +1,16 @@
-package com.project.carsharingapp.service;
+package com.project.carsharingapp.service.rental;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
-import com.project.carsharingapp.model.Rental;
 import java.util.List;
+import org.springframework.security.core.Authentication;
 
 public interface RentalService {
-    RentalDto add(CreateRentalRequestDto requestDto);
+    RentalDto add(CreateRentalRequestDto requestDto, Authentication authentication);
 
     List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive);
 
     RentalDto getById(Long id);
 
-    RentalDto setActualReturnDay(Long id);
-
-    Rental getByUserIdAndActive(Long userId, boolean isActive);
+    RentalDto setActualReturnDay(Authentication authentication);
 }
