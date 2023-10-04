@@ -8,8 +8,8 @@ import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
+import com.project.carsharingapp.repository.rentals.RentalRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +27,17 @@ public class RentalServiceImpl implements RentalService {
     public RentalDto add(CreateRentalRequestDto requestDto) {
         Rental rental = rentalMapper.toEntity(requestDto);
         rental.setCar(getCar(requestDto.getCarId()));
-        rental.setUser(getUser(requestDto.getCarId()));   // Use auth obj here
+        rental.setUser(getUser(requestDto.getCarId()));
         rental.setActive(true);
         rental = rentalRepository.save(rental);
-        decreaseCarInventory(requestDto.getCarId());           // add notification
+        decreaseCarInventory(requestDto.getCarId());
         return rentalMapper.toDto(rental);
     }
 
     @Override
     public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
+        List<Rental> rentals = rentalRepository
+                                .findRentalsByUserIdAndActiveStatus(userId, isActive);
         if (rentals == null || rentals.isEmpty()) {
             throw new EntityNotFoundException("No rentals found for user id: "
                     + userId + " and active status: " + isActive);
@@ -45,19 +46,6 @@ public class RentalServiceImpl implements RentalService {
                 .map(rentalMapper::toDto)
                 .toList();
     }
-
-// For User
-
-//    private RentalDto getByUserIdAndActiveStatus(Auth userId, boolean isActive) {  //
-//        Rental rentals = rentalRepository.findRentalByUserIdAndActiveStatus(userId, isActive);
-//        if (rentals == null || rentals.isEmpty()) {
-//            throw new EntityNotFoundException("No rentals found for user id: "
-//                    + userId + " and active status: " + isActive);
-//        }
-//        return rentals.stream()
-//                .map(rentalMapper::toDto)
-//                .toList();
-//    }
 
     @Override
     public RentalDto getById(Long id) {

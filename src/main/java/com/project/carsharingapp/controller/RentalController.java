@@ -2,7 +2,6 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
-import com.project.carsharingapp.dto.rental.SetActualReturnDateRequestDto;
 import com.project.carsharingapp.service.rental.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,7 +56,7 @@ public class RentalController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Set actual return date",
             description = "Set actual return date and increase car inventory by 1")
-    public RentalDto setActualReturnDay(Long id) {   // Authnetication
+    public RentalDto setActualReturnDay(Long id) {
         return rentalService.setActualReturnDay(id);
     }
 }

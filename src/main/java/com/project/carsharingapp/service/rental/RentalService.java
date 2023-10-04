@@ -2,7 +2,6 @@ package com.project.carsharingapp.service.rental;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
-import com.project.carsharingapp.dto.rental.SetActualReturnDateRequestDto;
 import java.util.List;
 
 public interface RentalService {
