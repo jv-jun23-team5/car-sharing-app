@@ -1,6 +1,7 @@
-package com.project.carsharingapp.repository.rentals;
+package com.project.carsharingapp.repository;
 
 import com.project.carsharingapp.model.Rental;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,6 +17,13 @@ public interface RentalRepository extends JpaRepository<Rental, Long>,
             + "LEFT JOIN FETCH r.user WHERE r.id = :id")
     Optional<Rental> findById(Long id);
 
-    @Query("FROM Rental r WHERE r.user.id = :userId AND r.isActive = :isActive")
-    Optional<Rental> findRentalsByUserIdAndActiveStatus(Long userId, boolean isActive);
+    @Query("FROM Rental r "
+            + "WHERE r.user.id = :userId "
+            + "AND r.isActive = :isActive")
+    Optional<Rental> findRentalByUserIdAndActiveStatus(Long userId, boolean isActive);
+
+    @Query("FROM Rental r "
+            + "WHERE r.user.id = :userId "
+            + "AND r.isActive = :isActive")
+    List<Rental> findRentalsByUserIdAndActiveStatus(Long userId, boolean isActive);
 }

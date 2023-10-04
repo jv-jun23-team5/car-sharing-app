@@ -2,7 +2,7 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
-import com.project.carsharingapp.service.rental.RentalService;
+import com.project.carsharingapp.service.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

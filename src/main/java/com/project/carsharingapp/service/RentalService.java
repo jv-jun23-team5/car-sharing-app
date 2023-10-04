@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.rental;
+package com.project.carsharingapp.service;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;

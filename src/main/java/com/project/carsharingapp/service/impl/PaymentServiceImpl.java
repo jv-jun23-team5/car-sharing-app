@@ -5,7 +5,7 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.repository.PaymentRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;

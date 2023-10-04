@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.rental;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
@@ -8,8 +8,9 @@ import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
+import com.project.carsharingapp.service.RentalService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        return rentalRepository.findRentalsByUserIdAndActiveStatus(user.getId(), true)
+        return rentalRepository.findRentalByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
