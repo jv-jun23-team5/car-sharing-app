@@ -1,7 +1,5 @@
 package com.project.carsharingapp.dto.user;
 
-import com.project.carsharingapp.model.Role;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
