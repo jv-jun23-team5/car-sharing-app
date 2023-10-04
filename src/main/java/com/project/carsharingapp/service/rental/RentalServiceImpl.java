@@ -13,6 +13,7 @@ import com.project.carsharingapp.repository.rentals.RentalRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,10 +25,10 @@ public class RentalServiceImpl implements RentalService {
     private final UserRepository userRepository;
 
     @Override
-    public RentalDto add(CreateRentalRequestDto requestDto) {
+    public RentalDto add(CreateRentalRequestDto requestDto, Authentication authentication) {
         Rental rental = rentalMapper.toEntity(requestDto);
         rental.setCar(getCar(requestDto.getCarId()));
-        rental.setUser(getUser(requestDto.getCarId()));
+        rental.setUser(getUser(authentication.getName()));
         rental.setActive(true);
         rental = rentalRepository.save(rental);
         decreaseCarInventory(requestDto.getCarId());
@@ -36,15 +37,7 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        List<Rental> rentals = rentalRepository
-                                .findRentalsByUserIdAndActiveStatus(userId, isActive);
-        if (rentals == null || rentals.isEmpty()) {
-            throw new EntityNotFoundException("No rentals found for user id: "
-                    + userId + " and active status: " + isActive);
-        }
-        return rentals.stream()
-                .map(rentalMapper::toDto)
-                .toList();
+        return null;
     }
 
     @Override
@@ -56,22 +49,24 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public RentalDto setActualReturnDay(Long id) {
-        return rentalRepository.findById(id)
+    public RentalDto setActualReturnDay(Authentication authentication) {
+        User user = getUser(authentication.getName());
+        return rentalRepository.findRentalsByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
                     rental.setActualReturnDate(LocalDateTime.now());
+                    rental.setActive(false);
                     rentalRepository.save(rental);
-                    increaseCarInventory(id);
+                    increaseCarInventory(rental.getCar().getId());
                     return rentalMapper.toDto(rental);
                 })
-                .orElseThrow(() -> new EntityNotFoundException("Rental "
-                        + "not found by id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(" Active rental "
+                        + "not found by id: " + user.getId()));
     }
 
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
+    private User getUser(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User "
-                        + "not found by id: " + userId));
+                        + "not found by email: " + email));
     }
 
     private Car getCar(Long carId) {
@@ -94,4 +89,3 @@ public class RentalServiceImpl implements RentalService {
         carRepository.save(car);
     }
 }
-
