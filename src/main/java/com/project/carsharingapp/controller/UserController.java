@@ -34,7 +34,7 @@ public class UserController {
             description = "Get user's detailed information about"
                     + " user profile by user identification number")
     public UserResponseDto getById(@PathVariable Long id) {
-        return userService.findById(id);
+        return userService.getById(id);
     }
 
     @PatchMapping("/{id}/role")

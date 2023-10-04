@@ -1,4 +1,4 @@
-package com.project.carsharingapp.repository.rentals;
+package com.project.carsharingapp.repository;
 
 import com.project.carsharingapp.model.Rental;
 import java.util.List;

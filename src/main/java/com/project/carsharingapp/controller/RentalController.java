@@ -2,7 +2,7 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
-import com.project.carsharingapp.service.rental.RentalService;
+import com.project.carsharingapp.service.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,7 +47,7 @@ public class RentalController {
     public List<RentalDto> getByUserIdAndActiveStatus(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Boolean isActive) {
-        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
+        return rentalService.getAllByUserIdAndActiveStatus(userId, isActive);
     }
 
     @GetMapping("/{id}")
