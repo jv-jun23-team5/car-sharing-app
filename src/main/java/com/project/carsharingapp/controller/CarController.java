@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class CarController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Save new car",
             description = "Save new car")
     public CarDto add(@RequestBody @Valid CreateCarRequestDto requestDto) {
@@ -55,6 +57,7 @@ public class CarController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @Operation(summary = "Update the car by id",
             description = "Update the car information by identification number")
     public CarDto update(@PathVariable Long id,
@@ -64,6 +67,7 @@ public class CarController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @Operation(summary = "Delete the car by id",
             description = "Delete the car by identification number")
     public void deleteById(@PathVariable Long id) {
