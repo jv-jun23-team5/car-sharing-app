@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-is-active-column-to-rental-table
+      author: Dmytro Varukha
+      changes:
+        - addColumn:
+            tableName: rentals
+            columns:
+              - column:
+                  name: is_active
+                  type: boolean
+                  constraints:
+                    nullable: false

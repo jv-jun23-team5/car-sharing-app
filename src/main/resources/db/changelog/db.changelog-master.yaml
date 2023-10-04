@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/add-default-users-to-users-table.yaml
   - include:
       file: db/changelog/changes/add-default-rentals-to-rentals-table.yaml
+  - include:
+      file: db/changelog/changes/add-is-active-column-to-rental-table.yaml
