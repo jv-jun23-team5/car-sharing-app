@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.rental;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
@@ -8,10 +8,12 @@ import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
+import com.project.carsharingapp.service.RentalService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,18 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return null;
+    public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
+                .stream()
+                .map(rentalMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId)
+                );
     }
 
     @Override
@@ -51,7 +63,7 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        return rentalRepository.findRentalsByUserIdAndActiveStatus(user.getId(), true)
+        return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);

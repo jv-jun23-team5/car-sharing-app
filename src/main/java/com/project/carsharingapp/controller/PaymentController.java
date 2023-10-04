@@ -7,9 +7,13 @@ import com.project.carsharingapp.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,14 +52,14 @@ public class PaymentController {
 
     @GetMapping("/success")
     @Operation(summary = "Redirect endpoint in case of successful payment")
-    private String redirectToSuccessPage(@RequestParam String sessionId) {
+    public String redirectToSuccessPage(@RequestParam String sessionId) {
         paymentService.updateStatus(sessionId, Payment.Status.PAID);
         return SUCCESS_ENDPOINT_MESSAGE;
     }
 
     @GetMapping("/cancel")
     @Operation(summary = "Redirect endpoint in case of paused payment")
-    private String redirectToFailedPage(@RequestParam String sessionId) {
+    public String redirectToFailedPage(@RequestParam String sessionId) {
         paymentService.updateStatus(sessionId, Payment.Status.PAUSED);
         return CANCEL_ENDPOINT_MESSAGE;
     }

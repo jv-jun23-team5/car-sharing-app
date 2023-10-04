@@ -8,6 +8,7 @@ import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.service.PaymentService;
 import com.project.carsharingapp.service.RentalService;
 import com.project.carsharingapp.service.UserService;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
+    private final RentalRepository rentalRepository;
     private final StripeService stripeService;
     private final UserService userService;
     private final RentalService rentalService;
@@ -34,7 +36,11 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponseDto create(Authentication authentication,
                                      CreatePaymentSessionRequestDto requestDto) {
         User user = userService.getByEmail(authentication.getName());
-        Rental rental = rentalService.getByUserIdAndActive(user.getId(), true);
+        Rental rental = rentalRepository.findById(requestDto.getRentalId()).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by id: "
+                                                + requestDto.getRentalId())
+        );
+
         Payment.Type type = Payment.Type.valueOf(requestDto.getType());
 
         try {

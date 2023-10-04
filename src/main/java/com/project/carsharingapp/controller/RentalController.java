@@ -47,7 +47,7 @@ public class RentalController {
     public List<RentalDto> getByUserIdAndActiveStatus(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Boolean isActive) {
-        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
+        return rentalService.getAllByUserIdAndActiveStatus(userId, isActive);
     }
 
     @GetMapping("/{id}")
