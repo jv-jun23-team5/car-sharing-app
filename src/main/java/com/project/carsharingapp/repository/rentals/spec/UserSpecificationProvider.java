@@ -1,6 +1,5 @@
 package com.project.carsharingapp.repository.rentals.spec;
 
-
 import static com.project.carsharingapp.repository.rentals.RentalSpecificationBuilder.USER_ID_KEY;
 
 import com.project.carsharingapp.model.Rental;

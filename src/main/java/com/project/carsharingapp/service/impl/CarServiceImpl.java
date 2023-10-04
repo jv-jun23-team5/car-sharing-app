@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.car.CarDto;
 import com.project.carsharingapp.dto.car.CreateCarRequestDto;
@@ -7,6 +7,7 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.CarMapper;
 import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.repository.CarRepository;
+import com.project.carsharingapp.service.CarService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,8 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDto update(Long id, UpdateCarRequestDto updateCarRequestDto) {
         Car car = carRepository.findById(id).orElseThrow(()
-                -> new EntityNotFoundException("Car not found"));
+                -> new EntityNotFoundException("Car not found with id: " + id
+                + ". Update failed for: " + updateCarRequestDto.toString()));
         car.setModel(updateCarRequestDto.getModel());
         car.setBrand(updateCarRequestDto.getBrand());
         car.setInventory(updateCarRequestDto.getInventory());

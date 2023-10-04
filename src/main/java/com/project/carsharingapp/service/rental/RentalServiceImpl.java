@@ -9,14 +9,16 @@ import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.repository.rentals.RentalSpecificationBuilder;
+import com.project.carsharingapp.repository.rentals.RentalRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,24 +31,34 @@ public class RentalServiceImpl implements RentalService {
     private final RentalSpecificationBuilder rentalSpecificationBuilder;
 
     @Override
-    public RentalDto add(CreateRentalRequestDto requestDto) {
+    public RentalDto add(CreateRentalRequestDto requestDto, Authentication authentication) {
         Rental rental = rentalMapper.toEntity(requestDto);
         rental.setCar(getCar(requestDto.getCarId()));
-        rental.setUser(getUser(requestDto.getCarId()));   // Use auth obj here
+        rental.setUser(getUser(authentication.getName()));
         rental.setActive(true);
         rental = rentalRepository.save(rental);
-        decreaseCarInventory(requestDto.getCarId());           // add notification
+        decreaseCarInventory(requestDto.getCarId());
         return rentalMapper.toDto(rental);
     }
 
-    @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
-        Specification<Rental> rentalSpecification = rentalSpecificationBuilder.build(params);
-        return rentalRepository.findAll(rentalSpecification, pageable)
-                .stream()
-                .map(rentalMapper::toDto)
-                .toList();
-    }
+//    @Override
+//    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
+//        Specification<Rental> rentalSpecification = rentalSpecificationBuilder.build(params);
+//        return rentalRepository.findAll(rentalSpecification, pageable)
+//                .stream()
+
+//    public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+//        List<Rental> rentals = rentalRepository
+//                                .findRentalsByUserIdAndActiveStatus(userId, isActive);
+//        if (rentals == null || rentals.isEmpty()) {
+//            throw new EntityNotFoundException("No rentals found for user id: "
+//                    + userId + " and active status: " + isActive);
+//        }
+//        return rentals.stream()
+//
+//                .map(rentalMapper::toDto)
+//                .toList();
+//    }
 //        @Override
 //        public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
 //            List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
@@ -60,64 +72,53 @@ public class RentalServiceImpl implements RentalService {
 //        }
 
 
-// For User
+        @Override
+        public RentalDto getById (Long id){
+            Rental rental = rentalRepository.findById(id).orElseThrow(
+                    () -> new EntityNotFoundException("Can't find rental by id: " + id)
+            );
+            return rentalMapper.toDto(rental);
+        }
 
-//    private RentalDto getByUserIdAndActiveStatus(Auth userId, boolean isActive) {  //
-//        Rental rentals = rentalRepository.findRentalByUserIdAndActiveStatus(userId, isActive);
-//        if (rentals == null || rentals.isEmpty()) {
-//            throw new EntityNotFoundException("No rentals found for user id: "
-//                    + userId + " and active status: " + isActive);
-//        }
-//        return rentals.stream()
-//                .map(rentalMapper::toDto)
-//                .toList();
-//    }
+        @Override
+        public RentalDto setActualReturnDay (Long id){
+            return rentalRepository.findById(id)
+                    .map(rental -> {
+                        rental.setActualReturnDate(LocalDateTime.now());
+                        rentalRepository.save(rental);
+                        increaseCarInventory(id);
+                        return rentalMapper.toDto(rental);
+                    })
+                    .orElseThrow(() -> new EntityNotFoundException("Rental "
+                            + "not found by id: " + id));
+        }
 
-    @Override
-    public RentalDto getById(Long id) {
-        Rental rental = rentalRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find rental by id: " + id)
-        );
-        return rentalMapper.toDto(rental);
-    }
+        private User getUser (String email) {
+            return userRepository.findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("User "
+                            + "not found by email: " + email));
+        }
 
-    @Override
-    public RentalDto setActualReturnDay(Long id) {
-        return rentalRepository.findById(id)
-                .map(rental -> {
-                    rental.setActualReturnDate(LocalDateTime.now());
-                    rentalRepository.save(rental);
-                    increaseCarInventory(id);
-                    return rentalMapper.toDto(rental);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("Rental "
-                        + "not found by id: " + id));
-    }
 
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User "
-                        + "not found by id: " + userId));
-    }
+        private Car getCar (Long carId){
+            return carRepository.findById(carId)
+                    .orElseThrow(() -> new EntityNotFoundException("Car"
+                            + " not found by id: " + carId));
+        }
 
-    private Car getCar(Long carId) {
-        return carRepository.findById(carId)
-                .orElseThrow(() -> new EntityNotFoundException("Car"
-                        + " not found by id: " + carId));
-    }
+        private void decreaseCarInventory (Long carId){
+            Car car = getCar(carId);
+            Integer existedInventory = car.getInventory();
+            car.setInventory(existedInventory - 1);
+            carRepository.save(car);
+        }
 
-    private void decreaseCarInventory(Long carId) {
-        Car car = getCar(carId);
-        Integer existedInventory = car.getInventory();
-        car.setInventory(existedInventory - 1);
-        carRepository.save(car);
-    }
-
-    private void increaseCarInventory(Long carId) {
-        Car car = getCar(carId);
-        Integer existedInventory = car.getInventory();
-        car.setInventory(existedInventory + 1);
-        carRepository.save(car);
+        private void increaseCarInventory (Long carId){
+            Car car = getCar(carId);
+            Integer existedInventory = car.getInventory();
+            car.setInventory(existedInventory + 1);
+            carRepository.save(car);
+        }
     }
 }
 
