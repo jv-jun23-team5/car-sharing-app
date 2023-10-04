@@ -1,6 +1,5 @@
-package com.project.carsharingapp.config;
+package com.project.carsharingapp.telegram;
 
-import com.project.carsharingapp.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -12,12 +11,12 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Component
 @RequiredArgsConstructor
 public class TelegramBotInitializer {
-    private final NotificationService notificationService;
+    private final TelegramBot telegramBot;
 
     @EventListener({ContextRefreshedEvent.class})
     public void init() throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        telegramBotsApi.registerBot(notificationService);
+        telegramBotsApi.registerBot(telegramBot);
     }
 
 }
