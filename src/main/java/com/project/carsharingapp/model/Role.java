@@ -22,4 +22,9 @@ public class Role {
     @Column(name = "name", nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
+
+    public enum RoleName {
+        ROLE_MANAGER,
+        ROLE_CUSTOMER
+    }
 }
