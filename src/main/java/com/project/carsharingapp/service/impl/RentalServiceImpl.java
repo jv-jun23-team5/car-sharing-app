@@ -11,9 +11,12 @@ import com.project.carsharingapp.repository.CarRepository;
 import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.RentalService;
+import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +40,14 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return null;
+    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable,
+                                                      Long userId,
+                                                      Boolean isActive) {
+        Specification<Rental> rentalSpecification = getSpecification(userId, isActive);
+        return rentalRepository.findAll(rentalSpecification, pageable)
+                .stream()
+                .map(rentalMapper::toDto)
+                .toList();
     }
 
     @Override
@@ -88,5 +97,22 @@ public class RentalServiceImpl implements RentalService {
         Integer existedInventory = car.getInventory();
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
+    }
+
+    private Specification<Rental> getSpecification(Long userId, Boolean isActive) {
+        return (root, query, criteriaBuilder) -> {
+            Predicate userPredicate = (userId != null)
+                    ? criteriaBuilder.equal(root.get("user").get("id"), userId)
+                    : criteriaBuilder.conjunction();
+            if (isActive != null) {
+                if (isActive) {
+                    return criteriaBuilder.and(userPredicate,
+                            criteriaBuilder.isTrue(root.get("isActive")));
+                }
+                return criteriaBuilder.and(userPredicate,
+                        criteriaBuilder.isFalse(root.get("isActive")));
+            }
+            return userPredicate;
+        };
     }
 }
