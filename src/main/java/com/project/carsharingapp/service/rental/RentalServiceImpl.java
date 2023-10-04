@@ -39,25 +39,25 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toDto(rental);
     }
 
-//    @Override
-//    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
-//        Specification<Rental> rentalSpecification = rentalSpecificationBuilder.build(params);
-//        return rentalRepository.findRentalsByUserIdAndActiveStatus(rentalSpecification, pageable)
-//                .stream()
-//                .map(rentalMapper::toDto)
-//                .toList();
-//    }
-        @Override
-        public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-            List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
-            if (rentals == null || rentals.isEmpty()) {
-                throw new EntityNotFoundException("No rentals found for user id: "
-                        + userId + " and active status: " + isActive);
-            }
-            return rentals.stream()
-                    .map(rentalMapper::toDto)
-                    .toList();
-        }
+    @Override
+    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
+        Specification<Rental> rentalSpecification = rentalSpecificationBuilder.build(params);
+        return rentalRepository.findAll(rentalSpecification, pageable)
+                .stream()
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+//        @Override
+//        public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+//            List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
+//            if (rentals == null || rentals.isEmpty()) {
+//                throw new EntityNotFoundException("No rentals found for user id: "
+//                        + userId + " and active status: " + isActive);
+//            }
+//            return rentals.stream()
+//                    .map(rentalMapper::toDto)
+//                    .toList();
+//        }
 
 
 // For User

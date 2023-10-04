@@ -37,16 +37,25 @@ public class RentalController {
         return rentalService.add(requestDto);
     }
 
-    @GetMapping("/{user_id}/{is_active}")
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get the rentals by user id and active status",
             description = "Retrieve rentals by user identification number"
                     + " and whether the rental is still active or not")
-    public List<RentalDto> getByUserIdAndActiveStatus(@RequestParam Long userId,
-                                                      @RequestParam boolean isActive) {
-//        return rentalService.getByUserIdAndActiveStatus(pageable, params);
-        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
+    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
+        return rentalService.getByUserIdAndActiveStatus(pageable, params);
     }
+
+//    @GetMapping("/")
+//    @ResponseStatus(HttpStatus.OK)
+//    @Operation(summary = "Get the rentals by user id and active status",
+//            description = "Retrieve rentals by user identification number"
+//                    + " and whether the rental is still active or not")
+//    public List<RentalDto> getByUserIdAndActiveStatus(@RequestParam Long userId,
+//                                                      @RequestParam boolean isActive) {
+////        return rentalService.getByUserIdAndActiveStatus(pageable, params);
+//        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
+//    }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)

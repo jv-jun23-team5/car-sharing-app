@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class RentalSpecificationBuilder implements SpecificationBuilder<Rental> {
-    public static final String USER_ID_KEY = "userId";
-    public static final String IS_ACTIVE_KEY = "isActive";
+    public static final String USER_ID_KEY = "user.id";
+    public static final String IS_ACTIVE_KEY = "is_active";
 
     private final SpecificationProviderManager<Rental> rentalSpecificationProviderManager;
 
     @Override
     public Specification<Rental> build(RentalSearchParametersDto searchParametersDto) {
         Specification<Rental> spec = Specification.where(null);
-        spec = getRentalSpecification(searchParametersDto.userId(), spec, USER_ID_KEY);
-        spec = getRentalSpecification(searchParametersDto.isActive(), spec, IS_ACTIVE_KEY);
+        spec = getRentalSpecification(searchParametersDto.user_id(), spec, USER_ID_KEY);
+        spec = getRentalSpecification(searchParametersDto.is_active(), spec, IS_ACTIVE_KEY);
         return spec;
     }
 

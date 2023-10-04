@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 public interface RentalService {
     RentalDto add(CreateRentalRequestDto requestDto);
 
-    //    List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params);
-    List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive);
+        List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params);
+//    List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive);
 
     RentalDto getById(Long id);
 
