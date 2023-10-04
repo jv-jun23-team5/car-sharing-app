@@ -1,4 +1,4 @@
 package com.project.carsharingapp.dto.user;
 
-public class UserLoginResponseDto {
+public record UserLoginResponseDto(String token) {
 }

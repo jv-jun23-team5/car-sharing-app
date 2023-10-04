@@ -46,7 +46,8 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDto update(Long id, UpdateCarRequestDto updateCarRequestDto) {
         Car car = carRepository.findById(id).orElseThrow(()
-                -> new EntityNotFoundException("Car not found"));
+                -> new EntityNotFoundException("Car not found with id: " + id
+                + ". Update failed for: " + updateCarRequestDto.toString()));
         car.setModel(updateCarRequestDto.getModel());
         car.setBrand(updateCarRequestDto.getBrand());
         car.setInventory(updateCarRequestDto.getInventory());
