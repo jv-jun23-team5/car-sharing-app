@@ -1,6 +1,7 @@
 package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
+import com.project.carsharingapp.dto.payment.PaymentResponseDto;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,14 +32,14 @@ public class PaymentController {
     @GetMapping
     @Operation(summary = "Get all user's payments")
     @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public List<Payment> getAll(Authentication authentication, Pageable pageable) {
+    public List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable) {
         return paymentService.getAll(authentication, pageable);
     }
 
     @PostMapping
     @Operation(summary = "Create a new payment session")
     @PreAuthorize("hasAnyRole('ROLE_CUSTOMER')")
-    public Payment create(
+    public PaymentResponseDto create(
             Authentication authentication,
             @RequestBody @Valid CreatePaymentSessionRequestDto requestDto
     ) {

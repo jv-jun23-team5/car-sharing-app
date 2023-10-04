@@ -8,7 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
 public interface PaymentService {
-    PaymentResponseDto create(Authentication authentication, CreatePaymentSessionRequestDto requestDto);
+    PaymentResponseDto create(Authentication authentication,
+                              CreatePaymentSessionRequestDto requestDto);
 
     PaymentResponseDto updateStatus(String sessionId, Payment.Status status);
 
