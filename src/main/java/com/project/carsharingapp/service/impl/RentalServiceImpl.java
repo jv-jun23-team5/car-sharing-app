@@ -107,4 +107,8 @@ public class RentalServiceImpl implements RentalService {
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
     }
+
+    private boolean isValidActualReturnDate(Rental rental, LocalDateTime actualReturnData) {
+        return rental.getRentalDate().isBefore(actualReturnData);
+    }
 }
