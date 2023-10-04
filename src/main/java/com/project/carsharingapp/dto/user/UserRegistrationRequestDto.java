@@ -25,6 +25,4 @@ public class UserRegistrationRequestDto {
     private String firstName;
     @NotEmpty
     private String lastName;
-    @NotEmpty
-    private String shippingAddress;
 }
