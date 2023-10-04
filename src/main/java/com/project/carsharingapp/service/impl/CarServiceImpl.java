@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.car.CarDto;
 import com.project.carsharingapp.dto.car.CreateCarRequestDto;
@@ -7,6 +7,7 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.CarMapper;
 import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.repository.CarRepository;
+import com.project.carsharingapp.service.CarService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
