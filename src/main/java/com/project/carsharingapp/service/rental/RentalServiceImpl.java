@@ -2,6 +2,7 @@ package com.project.carsharingapp.service.rental;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
+import com.project.carsharingapp.dto.rental.RentalSearchParametersDto;
 import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.RentalMapper;
 import com.project.carsharingapp.model.Car;
@@ -10,9 +11,12 @@ import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
 import com.project.carsharingapp.repository.rentals.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
+import com.project.carsharingapp.repository.rentals.RentalSpecificationBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +26,7 @@ public class RentalServiceImpl implements RentalService {
     private final RentalMapper rentalMapper;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final RentalSpecificationBuilder rentalSpecificationBuilder;
 
     @Override
     public RentalDto add(CreateRentalRequestDto requestDto) {
@@ -34,17 +39,26 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toDto(rental);
     }
 
-    @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
-        if (rentals == null || rentals.isEmpty()) {
-            throw new EntityNotFoundException("No rentals found for user id: "
-                    + userId + " and active status: " + isActive);
+//    @Override
+//    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, RentalSearchParametersDto params) {
+//        Specification<Rental> rentalSpecification = rentalSpecificationBuilder.build(params);
+//        return rentalRepository.findRentalsByUserIdAndActiveStatus(rentalSpecification, pageable)
+//                .stream()
+//                .map(rentalMapper::toDto)
+//                .toList();
+//    }
+        @Override
+        public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+            List<Rental> rentals = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, isActive);
+            if (rentals == null || rentals.isEmpty()) {
+                throw new EntityNotFoundException("No rentals found for user id: "
+                        + userId + " and active status: " + isActive);
+            }
+            return rentals.stream()
+                    .map(rentalMapper::toDto)
+                    .toList();
         }
-        return rentals.stream()
-                .map(rentalMapper::toDto)
-                .toList();
-    }
+
 
 // For User
 

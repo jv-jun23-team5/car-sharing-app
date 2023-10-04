@@ -2,6 +2,7 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
+import com.project.carsharingapp.dto.rental.RentalSearchParametersDto;
 import com.project.carsharingapp.dto.rental.SetActualReturnDateRequestDto;
 import com.project.carsharingapp.service.rental.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +44,7 @@ public class RentalController {
                     + " and whether the rental is still active or not")
     public List<RentalDto> getByUserIdAndActiveStatus(@RequestParam Long userId,
                                                       @RequestParam boolean isActive) {
+//        return rentalService.getByUserIdAndActiveStatus(pageable, params);
         return rentalService.getByUserIdAndActiveStatus(userId, isActive);
     }
 
