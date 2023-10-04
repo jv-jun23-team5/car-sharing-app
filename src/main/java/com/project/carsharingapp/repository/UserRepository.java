@@ -2,7 +2,6 @@ package com.project.carsharingapp.repository;
 
 import com.project.carsharingapp.model.User;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
