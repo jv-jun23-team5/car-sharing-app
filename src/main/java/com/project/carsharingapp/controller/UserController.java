@@ -2,7 +2,7 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.user.UpdateUserProfileRequestDto;
 import com.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
-import com.project.carsharingapp.dto.user.UserDto;
+import com.project.carsharingapp.dto.user.UserResponseDto;
 import com.project.carsharingapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +31,7 @@ public class UserController {
     @Operation(summary = "Get user profile info by user id",
             description = "Get user's detailed information about"
                     + " user profile by user identification number")
-    public UserDto getById(@PathVariable Long id) {
+    public UserResponseDto getById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
@@ -39,8 +39,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update user role by user id",
             description = "Update user role by user identification number")
-    public UserDto updateUserRole(@PathVariable Long id,
-                                     @RequestBody @Valid
+    public UserResponseDto updateUserRole(@PathVariable Long id,
+                                          @RequestBody @Valid
                                      UpdateUserRoleRequestDto requestDto) {
         return userService.updateUserRole(id, requestDto);
     }
@@ -50,8 +50,9 @@ public class UserController {
     @Operation(summary = "Update user info by id",
             description = "Update the user profile information "
                     + "by user identification number")
-    public UserDto updateUserProfile(@PathVariable Long id,
-                          @Valid @RequestBody UpdateUserProfileRequestDto requestDto) {
+    public UserResponseDto updateUserProfile(@PathVariable Long id,
+                                             @Valid @RequestBody UpdateUserProfileRequestDto
+                                                     requestDto) {
         return userService.updateUserProfile(id, requestDto);
     }
 }
