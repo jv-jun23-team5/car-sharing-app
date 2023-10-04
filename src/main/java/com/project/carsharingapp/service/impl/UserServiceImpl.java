@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
 
     @Override
-    public UserResponseDto findById(Long id) {
+    public UserResponseDto getById(Long id) {
         User user = getCurrentUser(id);
         return userMapper.toDto(user);
     }
@@ -55,11 +55,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(userRepository.save(user));
     }
 
-    private User getCurrentUser(Long id) {
-        return userRepository.findUserById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find user by id " + id));
-    }
-
     @Override
     public UserRegisterResponseDto register(UserRegistrationRequestDto registrationRequestDto)
             throws RegistrationException {
@@ -72,5 +67,17 @@ public class UserServiceImpl implements UserService {
         Role userRole = roleService.getRoleByRoleName(Role.RoleName.ROLE_CUSTOMER);
         user.setRoles(new HashSet<>(Set.of(userRole)));
         return userMapper.toRegistrationDto(userRepository.save(user));
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a user by email: " + email)
+        );
+    }
+
+    private User getCurrentUser(Long id) {
+        return userRepository.findUserById(id).orElseThrow(
+                () -> new EntityNotFoundException("Can't find user by id " + id));
     }
 }

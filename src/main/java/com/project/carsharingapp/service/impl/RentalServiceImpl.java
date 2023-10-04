@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.rental;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
@@ -8,11 +8,13 @@ import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
 import com.project.carsharingapp.service.NotificationService;
+import com.project.carsharingapp.service.RentalService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -38,33 +40,18 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toDto(rental);
     }
 
-    private void sendNotification(Rental rental, Authentication authentication) {
-        User user = getUser(authentication.getName());
-        Long chatId = user.getTelegramChatId();
-        String userEmail = user.getEmail();
-        Car car = rental.getCar();
-        StringBuilder message = new StringBuilder();
-        message.append("You rental was created. Rental detail: \n")
-                .append("User: ")
-                .append(userEmail)
-                .append("\n Rental date: ")
-                .append(rental.getRentalDate())
-                .append("\n Return date: ")
-                .append(rental.getReturnDate())
-                .append("\n Car: ")
-                .append(car.getBrand())
-                .append(" ")
-                .append(car.getModel());
-        if (rental.getActualReturnDate() != null) {
-            message.append("\n Actual return data: ")
-                    .append(rental.getActualReturnDate());
-        }
-        notificationService.sendMessage(chatId, message.toString());
+    @Override
+    public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
+                .stream()
+                .map(rentalMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return null;
+    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
     }
 
     @Override
@@ -78,13 +65,12 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        Rental rental1 = rentalRepository.findRentalByUserIdAndActiveStatus(
-                user.getId(), true)
+        Rental rental1 = rentalRepository.findByUserIdAndActiveStatus(
+                        user.getId(), true)
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
         sendNotification(rental1, authentication);
-
-        return rentalRepository.findRentalByUserIdAndActiveStatus(user.getId(), true)
+        return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
@@ -120,5 +106,29 @@ public class RentalServiceImpl implements RentalService {
         Integer existedInventory = car.getInventory();
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
+    }
+
+    private void sendNotification(Rental rental, Authentication authentication) {
+        User user = getUser(authentication.getName());
+        Long chatId = user.getTelegramChatId();
+        String userEmail = user.getEmail();
+        Car car = rental.getCar();
+        StringBuilder message = new StringBuilder();
+        message.append("You rental was created. Rental detail: \n")
+                .append("User: ")
+                .append(userEmail)
+                .append("\n Rental date: ")
+                .append(rental.getRentalDate())
+                .append("\n Return date: ")
+                .append(rental.getReturnDate())
+                .append("\n Car: ")
+                .append(car.getBrand())
+                .append(" ")
+                .append(car.getModel());
+        if (rental.getActualReturnDate() != null) {
+            message.append("\n Actual return data: ")
+                    .append(rental.getActualReturnDate());
+        }
+        notificationService.sendMessage(chatId, message.toString());
     }
 }
