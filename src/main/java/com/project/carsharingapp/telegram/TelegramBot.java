@@ -22,17 +22,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Component
 @RequiredArgsConstructor
 public class TelegramBot extends TelegramLongPollingBot {
-    private static final String HELP_MESSAGE = "You can use menu or buttons to use this bot."
-            + " Here is a list of available features. \n"
-            + "1. /start or Start button: Getting started with the bot.\n"
-            + "2. /login_in or Login In: To log in. If you are not signed in,"
-            + " you will not be able to receive notifications.\n"
-            + "3. /my_current_rentals or Current Rentals: "
-            + "Displays all current car rentals and rental details.\n"
-            + "4. /all_rental or All Rental: "
-            + "Displays the history of all car rentals and details about them.\n"
-            + "5. /exit or Exit: Sign out. After this action, "
-            + "you will no longer be able to receive notifications until you sign in again\n";
+    private static final String HELP_MESSAGE = """ 
+            You can use menu or buttons to use this bot.
+            Here is a list of available features. \n
+            1. /start or Start button: Getting started with the bot. \n
+            2. /login_in or Login In: To log in. If you are not signed in,
+            you will not be able to receive notifications. \n
+            3. /my_current_rentals or Current Rentals: "
+            Displays all current car rentals and rental details. \n
+            4. /all_rental or All Rental:
+            Displays the history of all car rentals and details about them. \n
+            5. /exit or Exit: Sign out. After this action, "
+            you will no longer be able to receive notifications until you sign in again \n""";
 
     private final TelegramBotConfig config;
     private final UserRepository userRepository;
@@ -106,10 +107,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String firstName) {
-        String answer = "Hi, " + firstName + ", nice to meet you! \n"
-                + "Welcome to the Car-Sharing-Bot. \n"
-                + "This bot was created to make it easier"
-                + " for you to work with the car rental service.";
+        String answer = "Hi, " + firstName + """
+                , nice to meet you! \n
+                Welcome to the Car-Sharing-Bot. \n
+                This bot was created to make it easier
+                 for you to work with the car rental service."
+                """;
         sendMessage(chatId, answer);
 
     }
