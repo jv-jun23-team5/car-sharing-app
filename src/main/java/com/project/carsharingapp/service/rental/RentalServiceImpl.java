@@ -38,30 +38,6 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toDto(rental);
     }
 
-    private void sendNotification(Rental rental, Authentication authentication) {
-        User user = getUser(authentication.getName());
-        Long chatId = user.getTelegramChatId();
-        String userEmail = user.getEmail();
-        Car car = rental.getCar();
-        StringBuilder message = new StringBuilder();
-        message.append("You rental was created. Rental detail: \n")
-                .append("User: ")
-                .append(userEmail)
-                .append("\n Rental date: ")
-                .append(rental.getRentalDate())
-                .append("\n Return date: ")
-                .append(rental.getReturnDate())
-                .append("\n Car: ")
-                .append(car.getBrand())
-                .append(" ")
-                .append(car.getModel());
-        if (rental.getActualReturnDate() != null) {
-            message.append("\n Actual return data: ")
-                    .append(rental.getActualReturnDate());
-        }
-        notificationService.sendMessage(chatId, message.toString());
-    }
-
     @Override
     public List<RentalDto> getByUserIdAndActiveStatus(Long userId, boolean isActive) {
         return null;
@@ -120,5 +96,29 @@ public class RentalServiceImpl implements RentalService {
         Integer existedInventory = car.getInventory();
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
+    }
+
+    private void sendNotification(Rental rental, Authentication authentication) {
+        User user = getUser(authentication.getName());
+        Long chatId = user.getTelegramChatId();
+        String userEmail = user.getEmail();
+        Car car = rental.getCar();
+        StringBuilder message = new StringBuilder();
+        message.append("You rental was created. Rental detail: \n")
+                .append("User: ")
+                .append(userEmail)
+                .append("\n Rental date: ")
+                .append(rental.getRentalDate())
+                .append("\n Return date: ")
+                .append(rental.getReturnDate())
+                .append("\n Car: ")
+                .append(car.getBrand())
+                .append(" ")
+                .append(car.getModel());
+        if (rental.getActualReturnDate() != null) {
+            message.append("\n Actual return data: ")
+                    .append(rental.getActualReturnDate());
+        }
+        notificationService.sendMessage(chatId, message.toString());
     }
 }
