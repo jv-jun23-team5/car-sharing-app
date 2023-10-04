@@ -12,5 +12,5 @@ public interface RentalService {
 
     RentalDto getById(Long id);
 
-    RentalDto setActualReturnDay(Long id, SetActualReturnDateRequestDto returnDate);
+    RentalDto setActualReturnDay(Long id);
 }

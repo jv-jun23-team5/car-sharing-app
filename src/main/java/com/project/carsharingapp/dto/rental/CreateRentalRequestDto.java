@@ -8,14 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateRentalRequestDto {
-    @NotNull
     private LocalDateTime rentalDate;
     @NotNull
     private LocalDateTime returnDate;
     @NotNull
-    private LocalDateTime actualReturnDate;
-    @NotNull
     private Long carId;
-    @NotNull
-    private Long userId;
+
 }

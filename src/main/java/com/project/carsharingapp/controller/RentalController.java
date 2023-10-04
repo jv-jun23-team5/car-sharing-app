@@ -53,12 +53,11 @@ public class RentalController {
         return rentalService.getById(id);
     }
 
-    @PostMapping("/{returnDate}")
+    @PostMapping("/return")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Set actual return date",
             description = "Set actual return date and increase car inventory by 1")
-    public RentalDto setActualReturnDay(@RequestParam Long id,
-                                            @Valid SetActualReturnDateRequestDto returnDate) {
-        return rentalService.setActualReturnDay(id, returnDate);
+    public RentalDto setActualReturnDay(Long id) {   // Authnetication
+        return rentalService.setActualReturnDay(id);
     }
 }
