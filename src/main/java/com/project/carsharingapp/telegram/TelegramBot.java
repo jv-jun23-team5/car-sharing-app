@@ -194,7 +194,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     .append("\n Car: ")
                     .append(car.getBrand())
                     .append(" ")
-                    .append(car.getCarType())
+                    .append(car.getModel())
                     .append("\n");
         }
         return message.toString();
