@@ -52,6 +52,14 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
+    public Rental getByUserAndId(User user, Long id) {
+        return rentalRepository.findByUserIdAndId(user.getId(), id).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental with id: " + id
+                                                    + " for the user")
+        );
+    }
+
+    @Override
     public RentalDto getById(Long id) {
         Rental rental = rentalRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Can't find rental by id: " + id)

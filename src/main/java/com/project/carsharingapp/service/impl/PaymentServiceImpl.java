@@ -6,6 +6,7 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.PaymentMapper;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
+import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
 import com.project.carsharingapp.repository.RentalRepository;
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
-    private final RentalRepository rentalRepository;
     private final StripeService stripeService;
     private final UserService userService;
     private final RentalService rentalService;
@@ -35,12 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponseDto create(Authentication authentication,
                                      CreatePaymentSessionRequestDto requestDto) {
-        User user = userService.getByEmail(authentication.getName());
-        Rental rental = rentalRepository.findById(requestDto.getRentalId()).orElseThrow(
-                () -> new EntityNotFoundException("Can't find a rental by id: "
-                                                + requestDto.getRentalId())
-        );
-
+        Rental rental = getUserRentalById(authentication, requestDto.getRentalId());
         Payment.Type type = Payment.Type.valueOf(requestDto.getType());
 
         try {
@@ -63,6 +58,20 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable) {
+        User user = userService.getByAuthentication(authentication);
+
+        if (
+                user.getRoles().stream()
+                        .map(Role::getRoleName)
+                        .anyMatch(roleName -> roleName.equals(Role.RoleName.ROLE_CUSTOMER))
+        ) {
+           return paymentRepository.findAll()
+                   .stream()
+                   .filter(payment -> payment.getRental().getUser().equals(user))
+                   .map(paymentMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+
         return paymentRepository.findAll(pageable).stream()
                 .map(paymentMapper::toDto)
                 .collect(Collectors.toList());
@@ -77,5 +86,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setSessionId(session.getId());
         payment.setAmount(BigDecimal.valueOf(session.getAmountTotal()));
         return payment;
+    }
+
+    private Rental getUserRentalById(Authentication authentication, Long id) {
+        User user = userService.getByAuthentication(authentication);
+        return rentalService.getByUserAndId(user, id);
     }
 }

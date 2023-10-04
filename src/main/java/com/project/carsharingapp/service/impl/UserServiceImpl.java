@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +73,13 @@ public class UserServiceImpl implements UserService {
     public User getByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("Can't find a user by email: " + email)
+        );
+    }
+
+    @Override
+    public User getByAuthentication(Authentication auth) {
+        return userRepository.findByEmail(auth.getName()).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a user by email: " + auth.getName())
         );
     }
 

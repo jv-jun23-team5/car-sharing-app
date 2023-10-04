@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-
 public interface RentalRepository extends JpaRepository<Rental, Long>,
         JpaSpecificationExecutor<Rental> {
 
@@ -26,4 +25,9 @@ public interface RentalRepository extends JpaRepository<Rental, Long>,
             + "LEFT JOIN FETCH r.car "
             + " WHERE r.user.id = :userId AND r.isActive = :isActive")
     Optional<Rental> findByUserIdAndActiveStatus(Long userId, boolean isActive);
+
+    @Query("FROM Rental r LEFT JOIN FETCH r.user "
+            + "LEFT JOIN FETCH r.car "
+            + " WHERE r.user.id = :userId AND r.id = :id")
+    Optional<Rental> findByUserIdAndId(Long userId, Long id);
 }
