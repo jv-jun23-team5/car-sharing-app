@@ -4,8 +4,8 @@ import com.project.carsharingapp.config.TelegramBotConfig;
 import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
-import com.project.carsharingapp.repository.rentals.RentalRepository;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,14 +130,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void allRentalsCommandReceived(Long chatId) {
         Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
         List<Rental> rentalList = rentalRepository
-                .findRentalsByUserIdAndActiveStatus(userId, false);
+                .findAllByUserIdAndActiveStatus(userId, false);
         String message = getRentalMessage(chatId, rentalList);
         sendMessage(chatId, message, sendButtons());
     }
 
     private void currentRentalCommandReceived(Long chatId) {
         Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
-        List<Rental> rentalList = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, true);
+        List<Rental> rentalList = rentalRepository.findAllByUserIdAndActiveStatus(userId, true);
         String message = getRentalMessage(chatId, rentalList);
         sendMessage(chatId, message, sendButtons());
     }
