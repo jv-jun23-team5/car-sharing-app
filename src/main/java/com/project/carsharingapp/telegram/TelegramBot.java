@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -28,10 +27,12 @@ public class TelegramBot extends TelegramLongPollingBot {
             + "1. /start or Start button: Getting started with the bot.\n"
             + "2. /login_in or Login In: To log in. If you are not signed in,"
             + " you will not be able to receive notifications.\n"
-            + "3. /my_current_rentals or Current Rentals: Displays all current car rentals and rental details.\n"
-            + "4. /all_rental or All Rental: Displays the history of all car rentals and details about them.\n"
-            + "5. /exit or Exit: Sign out. After this action, " +
-            "you will no longer be able to receive notifications until you sign in again\n";
+            + "3. /my_current_rentals or Current Rentals: "
+            + "Displays all current car rentals and rental details.\n"
+            + "4. /all_rental or All Rental: "
+            + "Displays the history of all car rentals and details about them.\n"
+            + "5. /exit or Exit: Sign out. After this action, "
+            + "you will no longer be able to receive notifications until you sign in again\n";
 
     private final TelegramBotConfig config;
     private final UserRepository userRepository;
@@ -88,7 +89,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-
     @Override
     public String getBotUsername() {
         return config.getBotName();
@@ -108,7 +108,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void startCommandReceived(Long chatId, String firstName) {
         String answer = "Hi, " + firstName + ", nice to meet you! \n"
                 + "Welcome to the Car-Sharing-Bot. \n"
-                + "This bot was created to make it easier for you to work with the car rental service.";
+                + "This bot was created to make it easier"
+                + " for you to work with the car rental service.";
         sendMessage(chatId, answer);
 
     }
@@ -148,20 +149,20 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private ReplyKeyboardMarkup sendButtons() {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-
         KeyboardRow firstRow = new KeyboardRow();
         firstRow.add("Login In");
         firstRow.add("Current Rentals");
         firstRow.add("All Rentals");
-        keyboardRows.add(firstRow);
 
         KeyboardRow secondRow = new KeyboardRow();
         secondRow.add("Exit");
         secondRow.add("Help");
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        keyboardRows.add(firstRow);
         keyboardRows.add(secondRow);
 
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setKeyboard(keyboardRows);
         return keyboardMarkup;
     }
