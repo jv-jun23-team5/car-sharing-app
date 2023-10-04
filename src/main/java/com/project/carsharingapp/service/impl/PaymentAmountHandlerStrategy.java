@@ -20,7 +20,5 @@ public class PaymentAmountHandlerStrategy {
                         new NoSuchElementException("Can't find a PaymentAmountHandler "
                                 + "for such type as: " + type)
                 );
-
     }
-
 }
