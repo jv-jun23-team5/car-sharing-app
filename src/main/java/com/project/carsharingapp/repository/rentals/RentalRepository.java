@@ -15,4 +15,10 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @Query("FROM Rental r WHERE r.user.id = :userId AND r.isActive = :isActive")
     List<Rental> findRentalsByUserIdAndActiveStatus(Long userId, boolean isActive);
+
+    @Query("FROM Rental r LEFT JOIN FETCH r.car "
+            + "LEFT JOIN FETCH r.user "
+            + "WHERE r.user.id = :userId "
+            + "AND r.isActive = :isActive")
+    Optional<Rental> findByUserIdAndActive(Long userId, boolean isActive);
 }

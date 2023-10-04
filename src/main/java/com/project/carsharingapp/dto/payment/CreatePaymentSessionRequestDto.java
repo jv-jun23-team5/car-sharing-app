@@ -8,7 +8,5 @@ import lombok.Setter;
 @Setter
 public class CreatePaymentSessionRequestDto {
     @NotNull
-    private Long rentalId;
-    @NotNull
     private String type;
 }

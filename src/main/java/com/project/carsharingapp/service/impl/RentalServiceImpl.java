@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.rental;
+package com.project.carsharingapp.service.impl;
 
 import com.project.carsharingapp.dto.rental.CreateRentalRequestDto;
 import com.project.carsharingapp.dto.rental.RentalDto;
@@ -10,6 +10,7 @@ import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.repository.rentals.RentalRepository;
+import com.project.carsharingapp.service.RentalService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +67,13 @@ public class RentalServiceImpl implements RentalService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Rental "
                         + "not found by id: " + id));
+    }
+
+    @Override
+    public Rental getByUserIdAndActive(Long userId, boolean isActive) {
+        return rentalRepository.findByUserIdAndActive(userId, isActive).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a Rental by user's id: " + userId)
+        );
     }
 
     private User getUser(Long userId) {
