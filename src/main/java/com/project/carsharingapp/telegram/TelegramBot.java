@@ -130,14 +130,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void allRentalsCommandReceived(Long chatId) {
         Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
         List<Rental> rentalList = rentalRepository
-                .findRentalsByUserIdAndActiveStatus(userId, false);
+                .findAllByUserIdAndActiveStatus(userId, false);
         String message = getRentalMessage(chatId, rentalList);
         sendMessage(chatId, message, sendButtons());
     }
 
     private void currentRentalCommandReceived(Long chatId) {
         Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
-        List<Rental> rentalList = rentalRepository.findRentalsByUserIdAndActiveStatus(userId, true);
+        List<Rental> rentalList = rentalRepository.findAllByUserIdAndActiveStatus(userId, true);
         String message = getRentalMessage(chatId, rentalList);
         sendMessage(chatId, message, sendButtons());
     }
