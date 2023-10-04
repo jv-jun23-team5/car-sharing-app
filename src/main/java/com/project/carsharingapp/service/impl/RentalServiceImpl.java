@@ -48,8 +48,7 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
         return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
-                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId)
-                );
+                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
     }
 
     @Override
