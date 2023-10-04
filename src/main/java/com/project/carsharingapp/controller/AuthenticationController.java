@@ -20,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Endpoints for managing login and register user")
+@Tag(name = "Authentication",
+        description = "Endpoints for managing login and register user")
 public class AuthenticationController {
     private final UserService userService;
     private final AuthenticationService authenticationService;
