@@ -46,16 +46,16 @@ public class RentalController {
         return rentalService.getByUserIdAndActiveStatus(pageable, params);
     }
 
-//    @GetMapping("/")
-//    @ResponseStatus(HttpStatus.OK)
-//    @Operation(summary = "Get the rentals by user id and active status",
-//            description = "Retrieve rentals by user identification number"
-//                    + " and whether the rental is still active or not")
-//    public List<RentalDto> getByUserIdAndActiveStatus(@RequestParam Long userId,
-//                                                      @RequestParam boolean isActive) {
-////        return rentalService.getByUserIdAndActiveStatus(pageable, params);
-//        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
-//    }
+    @GetMapping("/")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get the rentals by user id and active status",
+            description = "Retrieve rentals by user identification number"
+                    + " and whether the rental is still active or not")
+    public List<RentalDto> getByUserIdAndActiveStatus(@RequestParam(required = false) Long userId,
+                                                      @RequestParam(required = false) Boolean isActive) {
+//        return rentalService.getByUserIdAndActiveStatus(pageable, params);
+        return rentalService.getByUserIdAndActiveStatus(userId, isActive);
+    }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)

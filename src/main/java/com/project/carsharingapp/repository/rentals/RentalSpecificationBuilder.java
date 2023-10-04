@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class RentalSpecificationBuilder implements SpecificationBuilder<Rental> {
-    public static final String USER_ID_KEY = "user.id";
-    public static final String IS_ACTIVE_KEY = "is_active";
+    public static final String USER_ID_KEY = "userId";
+    public static final String IS_ACTIVE_KEY = "isActive";
 
     private final SpecificationProviderManager<Rental> rentalSpecificationProviderManager;
 

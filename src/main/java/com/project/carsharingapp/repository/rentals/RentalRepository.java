@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface RentalRepository extends JpaRepository<Rental, Long>,
         JpaSpecificationExecutor<Rental> {
 
-    @Query("FROM Rental r WHERE r.user.id = :userId OR r.isActive = :isActive")
+    @Query("FROM Rental r WHERE r.user.id = :userId AND r.isActive = :isActive")
     List<Rental> findRentalsByUserIdAndActiveStatus(Long userId, boolean isActive);
 
 //    @Query("FROM Rental r WHERE r.user.id = :userId AND r.isActive = :isActive")
