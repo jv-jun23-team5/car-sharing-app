@@ -5,4 +5,3 @@ public record RentalSearchParametersDto(
         String[] isActive
 ) {
 }
-
