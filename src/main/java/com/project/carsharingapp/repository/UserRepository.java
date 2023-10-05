@@ -18,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByTelegramChatId(Long chatId);
 
-    @Query("FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
-    List<User> findByRoles(Set<Role> roles);
+    @EntityGraph(attributePaths = "roles")
+    List<User> findByRolesIn(Set<Role> roles);
 }
