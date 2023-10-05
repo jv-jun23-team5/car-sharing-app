@@ -74,7 +74,7 @@ public class RentalServiceImpl implements RentalService {
                     sendNotification(rental, authentication);
                     return rentalMapper.toDto(rental);
                 })
-                .orElseThrow(() -> new EntityNotFoundException(" Active rental "
+                .orElseThrow(() -> new EntityNotFoundException("Active rental "
                         + "not found by id: " + user.getId()));
     }
 
