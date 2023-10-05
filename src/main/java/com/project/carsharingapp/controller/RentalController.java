@@ -50,6 +50,7 @@ public class RentalController {
             @RequestParam(name = "user_id", required = false) Long userId,
             @RequestParam(name = "is_active", required = false) Boolean isActive) {
         return rentalService.getByUserIdAndActiveStatus(pageable, userId, isActive);
+
     }
 
     @GetMapping("/{id}")

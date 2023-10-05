@@ -10,6 +10,7 @@ import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
 import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
+import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class RentalServiceImpl implements RentalService {
     private final RentalMapper rentalMapper;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public RentalDto add(CreateRentalRequestDto requestDto, Authentication authentication) {
@@ -36,6 +38,7 @@ public class RentalServiceImpl implements RentalService {
         rental.setActive(true);
         rental = rentalRepository.save(rental);
         decreaseCarInventory(requestDto.getCarId());
+        sendNotification(rental, authentication);
         return rentalMapper.toDto(rental);
     }
 
@@ -61,16 +64,25 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        return rentalRepository.findRentalByUserIdAndActiveStatus(user.getId(), true)
+        return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
+                    isCorrectReturnDate(rental);
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
                     rentalRepository.save(rental);
                     increaseCarInventory(rental.getCar().getId());
+                    sendNotification(rental, authentication);
                     return rentalMapper.toDto(rental);
                 })
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
+    }
+
+    private static void isCorrectReturnDate(Rental rental) {
+        if (rental.getRentalDate().isAfter(LocalDateTime.now())) {
+            throw new RuntimeException("The car can't be returned"
+                    + " before rental date");
+        }
     }
 
     private User getUser(String email) {
@@ -114,5 +126,31 @@ public class RentalServiceImpl implements RentalService {
             }
             return userPredicate;
         };
+    }
+
+    private void sendNotification(Rental rental, Authentication authentication) {
+        User user = getUser(authentication.getName());
+        Long chatId = user.getTelegramChatId();
+        if (chatId != null) {
+            String userEmail = user.getEmail();
+            Car car = rental.getCar();
+            StringBuilder message = new StringBuilder();
+            message.append("You rental was created. Rental detail: \n")
+                    .append("User: ")
+                    .append(userEmail)
+                    .append("\n Rental date: ")
+                    .append(rental.getRentalDate())
+                    .append("\n Return date: ")
+                    .append(rental.getReturnDate())
+                    .append("\n Car: ")
+                    .append(car.getBrand())
+                    .append(" ")
+                    .append(car.getModel());
+            if (rental.getActualReturnDate() != null) {
+                message.append("\n Actual return data: ")
+                        .append(rental.getActualReturnDate());
+            }
+            notificationService.sendMessage(chatId, message.toString());
+        }
     }
 }

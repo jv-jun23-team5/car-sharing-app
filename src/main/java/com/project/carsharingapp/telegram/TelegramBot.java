@@ -1,7 +1,10 @@
 package com.project.carsharingapp.telegram;
 
 import com.project.carsharingapp.config.TelegramBotConfig;
+import com.project.carsharingapp.model.Car;
+import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.User;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -28,8 +31,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             1. /start or Start button: Getting started with the bot. \n
             2. /login_in or Login In: To log in. If you are not signed in,
             you will not be able to receive notifications. \n
-            3. /my_current_rentals or Current Rentals: "
-            Displays all current car rentals and rental details. \n
+            3. /my_current_rental or Current Rental: "
+            Displays  current car rental and rental details. \n
             4. /all_rental or All Rental:
             Displays the history of all car rentals and details about them. \n
             5. /exit or Exit: Sign out. After this action, "
@@ -37,13 +40,14 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final TelegramBotConfig config;
     private final UserRepository userRepository;
+    private final RentalRepository rentalRepository;
 
     @PostConstruct
     private void init() {
         List<BotCommand> botCommands = new ArrayList<>();
         botCommands.add(new BotCommand("/start", "Start working with the bot"));
         botCommands.add(new BotCommand("/login_in", "Sign in"));
-        botCommands.add(new BotCommand("/my_current_rentals", "Show list of current rentals"));
+        botCommands.add(new BotCommand("/my_current_rental", "Show current rental"));
         botCommands.add(new BotCommand("/all_rental", "Show list of all rentals"));
         botCommands.add(new BotCommand("/help", "Instructions for use"));
         botCommands.add(new BotCommand("/exit", "Sign out"));
@@ -67,9 +71,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "Login In":
                     loginCommandReceived(chatId);
                     break;
-                case "/my_current_rentals":
-                case "Current Rentals":
-                    currentRentalsCommandReceived(chatId);
+                case "/my_current_rental":
+                case "Current Rental":
+                    currentRentalCommandReceived(chatId);
                     break;
                 case "/all_rental":
                 case "All Rentals":
@@ -101,9 +105,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public void sendNotification(Long userChatId, String message) {
-        //need security
-        Long chatId = 0L;
-        sendMessage(userChatId, message);
+        sendMessage(userChatId, message, sendButtons());
     }
 
     private void startCommandReceived(Long chatId, String firstName) {
@@ -113,30 +115,41 @@ public class TelegramBot extends TelegramLongPollingBot {
                 This bot was created to make it easier
                  for you to work with the car rental service."
                 """;
-        sendMessage(chatId, answer);
-
+        sendMessage(chatId, answer, sendRegisterButtons());
     }
 
     private void exitRentalsCommandReceived(Long chatId) {
-        // need implemented
+        User user = userRepository.findByTelegramChatId(chatId);
+        user.setTelegramChatId(null);
+        userRepository.save(user);
+        String message = "You are logged out. You will no longer receive notifications."
+                + " To receive notifications again, log in again.";
+        sendMessage(chatId, message, sendRegisterButtons());
     }
 
     private void allRentalsCommandReceived(Long chatId) {
-        // need implemented
+        Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
+        List<Rental> rentalList = rentalRepository
+                .findAllByUserIdAndActiveStatus(userId, false);
+        String message = getRentalMessage(chatId, rentalList);
+        sendMessage(chatId, message, sendButtons());
     }
 
-    private void currentRentalsCommandReceived(Long chatId) {
-        // need implemented
+    private void currentRentalCommandReceived(Long chatId) {
+        Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
+        List<Rental> rentalList = rentalRepository.findAllByUserIdAndActiveStatus(userId, true);
+        String message = getRentalMessage(chatId, rentalList);
+        sendMessage(chatId, message, sendButtons());
     }
 
     private void helpRentalsCommandReceived(Long chatId) {
-        sendMessage(chatId, HELP_MESSAGE);
+        sendMessage(chatId, HELP_MESSAGE, sendRegisterButtons());
     }
 
     private void loginCommandReceived(Long chatId) {
         String message = "You need to enter your login to log in. \n"
                 + "An example of a login: sample@sample.com";
-        sendMessage(chatId, message);
+        sendMessage(chatId, message, sendButtons());
     }
 
     private void saveUserChatId(Long chatId, String text) {
@@ -145,16 +158,51 @@ public class TelegramBot extends TelegramLongPollingBot {
             User user = optionalUser.get();
             user.setTelegramChatId(chatId);
             userRepository.save(user);
-            sendMessage(chatId, "Login successfully");
+            sendMessage(chatId, "Login successfully", sendButtons());
         } else {
-            sendMessage(chatId, "Сan`t find user by Login. Please try again.");
+            sendMessage(chatId, "Сan`t find user by Login. Please try again.", sendButtons());
         }
+    }
+
+    private void sendMessage(
+            Long chatId,
+            String textMessage,
+            ReplyKeyboardMarkup replyKeyboardMarkup
+    ) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(textMessage);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getRentalMessage(Long chatId, List<Rental> rentalList) {
+        StringBuilder message = new StringBuilder();
+        if (rentalList.isEmpty()) {
+            sendMessage(chatId, "There are no rents", sendButtons());
+        }
+        for (Rental rental : rentalList) {
+            Car car = rental.getCar();
+            message.append("Rental date: ")
+                    .append(rental.getRentalDate())
+                    .append("\n Return date: ")
+                    .append(rental.getReturnDate())
+                    .append("\n Car: ")
+                    .append(car.getBrand())
+                    .append(" ")
+                    .append(car.getModel())
+                    .append("\n");
+        }
+        return message.toString();
     }
 
     private ReplyKeyboardMarkup sendButtons() {
         KeyboardRow firstRow = new KeyboardRow();
-        firstRow.add("Login In");
-        firstRow.add("Current Rentals");
+        firstRow.add("Current Rental");
         firstRow.add("All Rentals");
 
         KeyboardRow secondRow = new KeyboardRow();
@@ -170,15 +218,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         return keyboardMarkup;
     }
 
-    private void sendMessage(Long chatId, String textMessage) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(textMessage);
-        sendMessage.setReplyMarkup(sendButtons());
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
+    private ReplyKeyboardMarkup sendRegisterButtons() {
+        ReplyKeyboardMarkup keyboardMarkup = sendButtons();
+        keyboardMarkup.getKeyboard().get(0).add(0, "Login In");
+        return keyboardMarkup;
     }
 }
