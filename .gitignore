@@ -1,4 +1,3 @@
-.env.sample
 .env
 HELP.md
 target/
