@@ -166,7 +166,7 @@ public class RentalServiceImpl implements RentalService {
     private void sendNotificationToManager(String message) {
         Role role = roleRepository.findRoleByRoleName(Role.RoleName.ROLE_MANAGER)
                 .orElseThrow(() -> new RuntimeException("Can`t find role with name Manager"));
-        List<User> managers = userRepository.findByRoles(Set.of(role));
+        List<User> managers = userRepository.findByRolesIn(Set.of(role));
         for (User user : managers) {
             if (user.getTelegramChatId() != null) {
                 notificationService.sendMessage(user.getTelegramChatId(), message);
