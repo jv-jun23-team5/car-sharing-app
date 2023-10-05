@@ -118,6 +118,7 @@ public class RentalServiceImpl implements RentalService {
 
     private boolean isValidActualReturnDate(Rental rental, LocalDateTime actualReturnData) {
         return rental.getRentalDate().isBefore(actualReturnData);
+    }
 
     private void sendNotification(Rental rental, Authentication authentication) {
         User user = getUser(authentication.getName());
