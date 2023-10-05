@@ -17,7 +17,6 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.CarMapper;
 import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.repository.CarRepository;
-import com.project.carsharingapp.service.impl.CarServiceImpl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
