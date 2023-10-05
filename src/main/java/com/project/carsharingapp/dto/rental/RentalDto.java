@@ -1,8 +1,7 @@
 package com.project.carsharingapp.dto.rental;
 
-import java.time.LocalDateTime;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
