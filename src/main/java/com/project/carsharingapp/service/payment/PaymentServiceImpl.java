@@ -10,6 +10,8 @@ import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
+import com.project.carsharingapp.repository.RentalRepository;
+import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
 import com.project.carsharingapp.service.UserService;
 import com.stripe.exception.StripeException;
@@ -32,6 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final StripeService stripeService;
     private final UserService userService;
     private final RentalService rentalService;
+    private final NotificationService notificationService;
     private final PaymentMapper paymentMapper;
 
     @Override
@@ -61,6 +64,8 @@ public class PaymentServiceImpl implements PaymentService {
                 () -> new EntityNotFoundException("Can't find a Payment by the session")
         );
         payment.setStatus(status);
+        User user = userService.getUserByRentalId(payment.getRental().getId());
+        notificationService.sendMessage(user.getTelegramChatId(), "The payment is " + status);
         return paymentMapper.toDto(paymentRepository.save(payment));
     }
 
@@ -117,5 +122,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(Role::getRoleName)
                 .anyMatch(roleName -> roleName.equals(Role.RoleName.ROLE_CUSTOMER));
     }
+
+
 
 }

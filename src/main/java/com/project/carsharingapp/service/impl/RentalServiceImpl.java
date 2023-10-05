@@ -113,8 +113,6 @@ public class RentalServiceImpl implements RentalService {
                 .collect(Collectors.toList());
     }
 
-
-
     private User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User "
@@ -130,6 +128,11 @@ public class RentalServiceImpl implements RentalService {
     private void decreaseCarInventory(Long carId) {
         Car car = getCar(carId);
         Integer existedInventory = car.getInventory();
+
+        if (existedInventory < 0) {
+            throw new RuntimeException("Can't make a rental because there are not enough cars");
+        }
+
         car.setInventory(existedInventory - 1);
         carRepository.save(car);
     }

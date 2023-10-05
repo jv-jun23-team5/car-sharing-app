@@ -24,4 +24,6 @@ public interface UserService {
     User getByEmail(String email);
 
     User getByAuthentication(Authentication auth);
+
+    User getUserByRentalId(Long rentalId);
 }
