@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -45,9 +46,11 @@ public class RentalController {
             description = "Retrieve rentals by user identification number"
                     + " and whether the rental is still active or not")
     public List<RentalDto> getByUserIdAndActiveStatus(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Boolean isActive) {
-        return rentalService.getAllByUserIdAndActiveStatus(userId, isActive);
+            Pageable pageable,
+            @RequestParam(name = "user_id", required = false) Long userId,
+            @RequestParam(name = "is_active", required = false) Boolean isActive) {
+        return rentalService.getByUserIdAndActiveStatus(pageable, userId, isActive);
+
     }
 
     @GetMapping("/{id}")

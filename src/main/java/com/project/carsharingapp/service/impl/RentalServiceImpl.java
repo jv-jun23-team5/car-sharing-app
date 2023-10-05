@@ -12,9 +12,7 @@ import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -57,13 +55,8 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<Rental> getAllByUserId(Long userId) {
-        return rentalRepository.findAllByUserId(userId);
-    }
-
-    @Override
     public Rental getByUserAndId(User user, Long id) {
-        return rentalRepository.findByUserIdAndRentalId(user.getId(), id).orElseThrow(
+        return rentalRepository.findByUserIdAndId(user.getId(), id).orElseThrow(
                 () -> new EntityNotFoundException("Can't find a rental with id: " + id
                                                     + " for the user")
         );
@@ -95,23 +88,6 @@ public class RentalServiceImpl implements RentalService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
-    }
-
-    @Override
-    public List<RentalDto> getAllOverdueRentals() {
-        return rentalRepository.findAll()
-                .stream()
-                .filter(
-                        rental -> getRestOfRentalDays(rental) <= 1 && rental.isActive()
-                )
-                .map(rentalMapper::toDto)
-                .toList();
-    }
-
-    private int getRestOfRentalDays(Rental rental) {
-        LocalDate returnDate = rental.getReturnDate().toLocalDate();
-        LocalDate currentDate = LocalDateTime.now().toLocalDate();
-        return Period.between(returnDate, currentDate).getDays();
     }
 
     private User getUser(String email) {

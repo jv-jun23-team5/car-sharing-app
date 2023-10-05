@@ -2,8 +2,8 @@ package com.project.carsharingapp.controller;
 
 import com.project.carsharingapp.dto.user.UserLoginRequestDto;
 import com.project.carsharingapp.dto.user.UserLoginResponseDto;
+import com.project.carsharingapp.dto.user.UserRegisterResponseDto;
 import com.project.carsharingapp.dto.user.UserRegistrationRequestDto;
-import com.project.carsharingapp.dto.user.UserResponseDto;
 import com.project.carsharingapp.security.AuthenticationService;
 import com.project.carsharingapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +35,9 @@ public class AuthenticationController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register user")
-    public UserResponseDto register(@RequestBody @Valid UserRegistrationRequestDto requestDto) {
+    public UserRegisterResponseDto register(
+            @RequestBody @Valid UserRegistrationRequestDto requestDto
+    ) {
         return userService.register(requestDto);
     }
 }
