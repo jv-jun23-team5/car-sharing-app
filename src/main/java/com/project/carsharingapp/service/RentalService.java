@@ -15,6 +15,10 @@ public interface RentalService {
 
     List<Rental> getAllByUserId(Long userId);
 
+    List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive);
+
+    Rental getByUserIdAndActiveStatus(Long userId, boolean isActive);
+
     Rental getByUserAndId(User user, Long id);
 
     RentalDto getById(Long id);

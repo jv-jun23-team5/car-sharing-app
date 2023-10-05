@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,16 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
+    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, Long userId, Boolean isActive) {
+        return null;
+    }
+
+    @Override
+    public List<Rental> getAllByUserId(Long userId) {
+        return null;
+    }
+
+    @Override
     public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
         return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
                 .stream()
@@ -56,7 +67,7 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public Rental getByUserAndId(User user, Long id) {
-        return rentalRepository.findByUserIdAndId(user.getId(), id).orElseThrow(
+        return rentalRepository.findByUserIdAndRentalId(user.getId(), id).orElseThrow(
                 () -> new EntityNotFoundException("Can't find a rental with id: " + id
                                                     + " for the user")
         );
@@ -88,6 +99,11 @@ public class RentalServiceImpl implements RentalService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
+    }
+
+    @Override
+    public List<RentalDto> getAllOverdueRentals() {
+        return null;
     }
 
     private User getUser(String email) {
