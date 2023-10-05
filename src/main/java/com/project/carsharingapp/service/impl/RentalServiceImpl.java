@@ -12,10 +12,12 @@ import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
+import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -41,17 +43,14 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
+    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable,
+                                                      Long userId,
+                                                      Boolean isActive) {
+        Specification<Rental> rentalSpecification = getSpecification(userId, isActive);
+        return rentalRepository.findAll(rentalSpecification, pageable)
                 .stream()
                 .map(rentalMapper::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
-                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
+                .toList();
     }
 
     @Override
@@ -65,21 +64,25 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        Rental rental1 = rentalRepository.findByUserIdAndActiveStatus(
-                        user.getId(), true)
-                .orElseThrow(() -> new EntityNotFoundException(" Active rental "
-                        + "not found by id: " + user.getId()));
-        sendNotification(rental1, authentication);
         return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
+                    isCorrectReturnDate(rental);
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
                     rentalRepository.save(rental);
                     increaseCarInventory(rental.getCar().getId());
+                    sendNotification(rental, authentication);
                     return rentalMapper.toDto(rental);
                 })
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
+    }
+
+    private static void isCorrectReturnDate(Rental rental) {
+        if (rental.getRentalDate().isAfter(LocalDateTime.now())) {
+            throw new RuntimeException("The car can't be returned"
+                    + " before rental date");
+        }
     }
 
     private User getUser(String email) {
@@ -108,27 +111,46 @@ public class RentalServiceImpl implements RentalService {
         carRepository.save(car);
     }
 
+    private Specification<Rental> getSpecification(Long userId, Boolean isActive) {
+        return (root, query, criteriaBuilder) -> {
+            Predicate userPredicate = (userId != null)
+                    ? criteriaBuilder.equal(root.get("user").get("id"), userId)
+                    : criteriaBuilder.conjunction();
+            if (isActive != null) {
+                if (isActive) {
+                    return criteriaBuilder.and(userPredicate,
+                            criteriaBuilder.isTrue(root.get("isActive")));
+                }
+                return criteriaBuilder.and(userPredicate,
+                        criteriaBuilder.isFalse(root.get("isActive")));
+            }
+            return userPredicate;
+        };
+    }
+
     private void sendNotification(Rental rental, Authentication authentication) {
         User user = getUser(authentication.getName());
         Long chatId = user.getTelegramChatId();
-        String userEmail = user.getEmail();
-        Car car = rental.getCar();
-        StringBuilder message = new StringBuilder();
-        message.append("You rental was created. Rental detail: \n")
-                .append("User: ")
-                .append(userEmail)
-                .append("\n Rental date: ")
-                .append(rental.getRentalDate())
-                .append("\n Return date: ")
-                .append(rental.getReturnDate())
-                .append("\n Car: ")
-                .append(car.getBrand())
-                .append(" ")
-                .append(car.getModel());
-        if (rental.getActualReturnDate() != null) {
-            message.append("\n Actual return data: ")
-                    .append(rental.getActualReturnDate());
+        if (chatId != null) {
+            String userEmail = user.getEmail();
+            Car car = rental.getCar();
+            StringBuilder message = new StringBuilder();
+            message.append("You rental was created. Rental detail: \n")
+                    .append("User: ")
+                    .append(userEmail)
+                    .append("\n Rental date: ")
+                    .append(rental.getRentalDate())
+                    .append("\n Return date: ")
+                    .append(rental.getReturnDate())
+                    .append("\n Car: ")
+                    .append(car.getBrand())
+                    .append(" ")
+                    .append(car.getModel());
+            if (rental.getActualReturnDate() != null) {
+                message.append("\n Actual return data: ")
+                        .append(rental.getActualReturnDate());
+            }
+            notificationService.sendMessage(chatId, message.toString());
         }
-        notificationService.sendMessage(chatId, message.toString());
     }
 }
