@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -44,6 +45,8 @@ public class UserServiceImplTest {
     private UserMapper userMapper;
     @InjectMocks
     private UserServiceImpl userService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @BeforeAll
     public static void setUp() {
@@ -70,7 +73,7 @@ public class UserServiceImplTest {
         updateUserProfileRequestDto.setEmail("new-email@example.com");
         updateUserProfileRequestDto.setFirstName("NewFirstName");
         updateUserProfileRequestDto.setLastName("NewLastName");
-        updateUserProfileRequestDto.setPassword("new-password");
+        updateUserProfileRequestDto.setPassword("admin2023admin");
 
         updateUserRoleRequestDto = new UpdateUserRoleRequestDto();
         updateUserRoleRequestDto.setRole(Role.RoleName.ROLE_CUSTOMER);
@@ -98,6 +101,7 @@ public class UserServiceImplTest {
     public void update_UserExist_ReturnUpdatedUserResponseDto() {
         when(userRepository.findUserById(TEST_ID)).thenReturn(Optional.of(testUser));
         when(userMapper.toDto(any(User.class))).thenReturn(testUserResponseDto);
+        when(passwordEncoder.encode("admin2023admin")).thenReturn("admin2023admin");
         when(userRepository.save(any())).thenReturn(testUser);
 
         UserResponseDto actual = userService.updateUserProfile(TEST_ID,

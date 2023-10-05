@@ -25,7 +25,7 @@ public class SchedulerServiceImp implements SchedulerService {
     private final NotificationService notificationService;
 
     @Override
-    @Scheduled(cron = "0/1 0 * * * MON-FRI")
+    @Scheduled(cron = "0/15 0 * * * MON-FRI")
     public void checkOverdueRentals() {
         rentalService.getAllOverdueRentals()
                 .forEach(
@@ -38,7 +38,7 @@ public class SchedulerServiceImp implements SchedulerService {
     }
 
     @Override
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0/2 0 * * * *")
     public void checkExpiredPaymentSessions() {
         List<Payment> allExpiredPayments = paymentService.getAllExpiredPayments();
         allExpiredPayments.forEach(payment -> payment.setStatus(Payment.Status.EXPIRED));
