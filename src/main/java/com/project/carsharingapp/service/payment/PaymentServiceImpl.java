@@ -14,6 +14,7 @@ import com.project.carsharingapp.service.UserService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -67,8 +68,16 @@ public class PaymentServiceImpl implements PaymentService {
         User user = userService.getByAuthentication(authentication);
 
         return paymentRepository.findAll(pageable).stream()
+                .filter(payment -> payment.getRental().getUser().getId().equals(user.getId()))
                 .map(paymentMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Payment> getAllExpiredPayments() {
+        return paymentRepository.findAll().stream()
+                .filter(payment -> payment.getExpiredTime().isBefore(Instant.now()))
+                .toList();
     }
 
     private Payment generatePayment(Session session, Rental rental, Payment.Type type) {
@@ -79,6 +88,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setSessionUrl(session.getUrl());
         payment.setSessionId(session.getId());
         payment.setAmount(BigDecimal.valueOf(session.getAmountTotal() / CONVERTING_TO_USD_VALUE));
+        payment.setExpiredTime(Instant.ofEpochSecond(session.getExpiresAt()));
         return payment;
     }
 
@@ -96,4 +106,5 @@ public class PaymentServiceImpl implements PaymentService {
             throw new NotValidPaymentProcessException("The payment session is expired!");
         }
     }
+
 }

@@ -16,6 +16,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long>,
             + "LEFT JOIN FETCH r.user WHERE r.id = :id")
     Optional<Rental> findById(Long id);
 
+    List<Rental> findAllByUserId(Long userId);
+
     @Query("FROM Rental r LEFT JOIN FETCH r.user "
             + "LEFT JOIN FETCH r.car "
             + " WHERE r.user.id = :userId AND r.isActive = :isActive")
@@ -28,6 +30,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long>,
 
     @Query("FROM Rental r LEFT JOIN FETCH r.user "
             + "LEFT JOIN FETCH r.car "
-            + " WHERE r.user.id = :userId AND r.id = :id")
-    Optional<Rental> findByUserIdAndId(Long userId, Long id);
+            + " WHERE r.user.id = :userId AND r.id = :rentalId")
+    Optional<Rental> findByUserIdAndRentalId(Long userId, Long rentalId);
 }

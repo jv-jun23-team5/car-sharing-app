@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,6 +39,8 @@ public class Payment {
     private String sessionId;
     @Column(nullable = false)
     private BigDecimal amount;
+    @Column(name = "expired_time", nullable = false)
+    private Instant expiredTime;
 
     public enum Status {
         PENDING,

@@ -14,9 +14,13 @@ public interface RentalService {
 
     Rental getByUserIdAndActiveStatus(Long userId, boolean isActive);
 
+    List<Rental> getAllByUserId(Long userId);
+
     Rental getByUserAndId(User user, Long id);
 
     RentalDto getById(Long id);
 
     RentalDto setActualReturnDay(Authentication authentication);
+
+    List<RentalDto> getAllOverdueRentals();
 }

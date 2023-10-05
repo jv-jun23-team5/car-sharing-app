@@ -14,4 +14,6 @@ public interface PaymentService {
     PaymentResponseDto updateStatus(String sessionId, Payment.Status status);
 
     List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable);
+
+    List<Payment> getAllExpiredPayments();
 }
