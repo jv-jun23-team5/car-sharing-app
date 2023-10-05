@@ -128,7 +128,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void allRentalsCommandReceived(Long chatId) {
-        Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
+        Long userId = userRepository.findByTelegramChatId(chatId).getId();
         List<Rental> rentalList = rentalRepository
                 .findAllByUserIdAndActiveStatus(userId, false);
         String message = getRentalMessage(chatId, rentalList);
@@ -136,7 +136,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void currentRentalCommandReceived(Long chatId) {
-        Long userId = userRepository.findByTelegramChatId(chatId).getTelegramChatId();
+        Long userId = userRepository.findByTelegramChatId(chatId).getId();
         List<Rental> rentalList = rentalRepository.findAllByUserIdAndActiveStatus(userId, true);
         String message = getRentalMessage(chatId, rentalList);
         sendMessage(chatId, message, sendButtons());

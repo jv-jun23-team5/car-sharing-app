@@ -6,15 +6,18 @@ import com.project.carsharingapp.exception.EntityNotFoundException;
 import com.project.carsharingapp.mapper.RentalMapper;
 import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Rental;
+import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.CarRepository;
 import com.project.carsharingapp.repository.RentalRepository;
+import com.project.carsharingapp.repository.RoleRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -28,6 +31,7 @@ public class RentalServiceImpl implements RentalService {
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final RoleRepository roleRepository;
 
     @Override
     public RentalDto add(CreateRentalRequestDto requestDto, Authentication authentication) {
@@ -139,24 +143,42 @@ public class RentalServiceImpl implements RentalService {
     private void sendNotification(Rental rental, Authentication authentication) {
         User user = getUser(authentication.getName());
         Long chatId = user.getTelegramChatId();
-        String userEmail = user.getEmail();
-        Car car = rental.getCar();
-        StringBuilder message = new StringBuilder();
-        message.append("You rental was created. Rental detail: \n")
-                .append("User: ")
-                .append(userEmail)
-                .append("\n Rental date: ")
-                .append(rental.getRentalDate())
-                .append("\n Return date: ")
-                .append(rental.getReturnDate())
-                .append("\n Car: ")
-                .append(car.getBrand())
-                .append(" ")
-                .append(car.getModel());
-        if (rental.getActualReturnDate() != null) {
-            message.append("\n Actual return data: ")
-                    .append(rental.getActualReturnDate());
+        if (chatId != null) {
+            String userEmail = user.getEmail();
+            Car car = rental.getCar();
+            StringBuilder message = new StringBuilder();
+            if (rental.isActive()) {
+                message.append("You rental was created. Rental detail: \n");
+            } else {
+                message.append("You rental was closed. Rental detail: \n");
+            }
+            message.append("User: ")
+                    .append(userEmail)
+                    .append("\n Rental date: ")
+                    .append(rental.getRentalDate())
+                    .append("\n Return date: ")
+                    .append(rental.getReturnDate())
+                    .append("\n Car: ")
+                    .append(car.getBrand())
+                    .append(" ")
+                    .append(car.getModel());
+            if (rental.getActualReturnDate() != null) {
+                message.append("\n Actual return data: ")
+                        .append(rental.getActualReturnDate());
+            }
+            sendNotificationToManager(message.toString());
+            notificationService.sendMessage(chatId, message.toString());
         }
-        notificationService.sendMessage(chatId, message.toString());
+    }
+
+    private void sendNotificationToManager(String message) {
+        Role role = roleRepository.findRoleByRoleName(Role.RoleName.ROLE_MANAGER)
+                .orElseThrow(() -> new RuntimeException("Can`t find role with name Manager"));
+        List<User> managers = userRepository.findByRolesIn(Set.of(role));
+        for (User user : managers) {
+            if (user.getTelegramChatId() != null) {
+                notificationService.sendMessage(user.getTelegramChatId(), message);
+            }
+        }
     }
 }
