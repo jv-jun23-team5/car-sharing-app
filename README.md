@@ -93,7 +93,7 @@ speed, safety, and convenience to all its esteemed users.
         <br> 3. Maven (for building the project);
         <br> 4. Docker (for running project in virtual container);<br>
         <br>Running for your local machine:<br>
-        <br> 1. Clone this repository: `git clone https://github.com/AntonZhdanov/Book-Store`.
+        <br> 1. Clone this repository: `git clone https://github.com/jv-jun23-team5/car-sharing-app`.
         <br> 2. You need to configure application.properties file to connect the database before running the app.
         <br> 3. Build the project: `mvn clean install`.
         <br> 4. Run the app: `mvn spring-boot:run`.<br>
