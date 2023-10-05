@@ -93,17 +93,13 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
-        Rental rental1 = rentalRepository.findByUserIdAndActiveStatus(
-                        user.getId(), true)
-                .orElseThrow(() -> new EntityNotFoundException(" Active rental "
-                        + "not found by id: " + user.getId()));
-        sendNotification(rental1, authentication);
         return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
                     rentalRepository.save(rental);
                     increaseCarInventory(rental.getCar().getId());
+                    sendNotification(rental, authentication);
                     return rentalMapper.toDto(rental);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Active rental "

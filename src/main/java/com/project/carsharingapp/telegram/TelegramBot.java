@@ -33,7 +33,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             you will not be able to receive notifications. \n
             3. /my_current_rental or Current Rental: "
             Displays  current car rental and rental details. \n
-            4. /all_rental or All Rental:
+            4. /all_rental or Rental History:
             Displays the history of all car rentals and details about them. \n
             5. /exit or Exit: Sign out. After this action, "
             you will no longer be able to receive notifications until you sign in again \n""";
@@ -76,7 +76,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     currentRentalCommandReceived(chatId);
                     break;
                 case "/all_rental":
-                case "All Rentals":
+                case "Rental History":
                     allRentalsCommandReceived(chatId);
                     break;
                 case "/exit":
@@ -113,7 +113,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 , nice to meet you! \n
                 Welcome to the Car-Sharing-Bot. \n
                 This bot was created to make it easier
-                 for you to work with the car rental service."
+                 for you to work with the car rental service.
                 """;
         sendMessage(chatId, answer, sendRegisterButtons());
     }
@@ -203,7 +203,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private ReplyKeyboardMarkup sendButtons() {
         KeyboardRow firstRow = new KeyboardRow();
         firstRow.add("Current Rental");
-        firstRow.add("All Rentals");
+        firstRow.add("Rental History");
 
         KeyboardRow secondRow = new KeyboardRow();
         secondRow.add("Exit");

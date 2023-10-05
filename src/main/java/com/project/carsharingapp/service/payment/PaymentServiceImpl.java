@@ -85,7 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> getAllExpiredPayments() {
         return paymentRepository.findAll().stream()
                 .filter(payment -> !payment.getStatus().equals(Payment.Status.PAID)
-                                    && payment.getExpiredTime().isBefore(Instant.now()))
+                        && payment.getExpiredTime().isBefore(Instant.now()))
                 .toList();
     }
 
@@ -107,6 +107,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void checkIfPaymentSessionValid(Rental rental) {
+        if (rental.getActualReturnDate() == null) {
+            throw new NotValidPaymentProcessException("Please, return the car and then you will"
+                    + " be able to pay for your rental! Have a good day!");
+        }
+        if (rental.getActualReturnDate().isBefore(rental.getRentalDate())) {
+            throw new NotValidPaymentProcessException("The rental was canceled "
+                    + "since you return it before rental date!");
+        }
         if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.PAID)) {
             throw new NotValidPaymentProcessException("The rental is paid!");
         }
