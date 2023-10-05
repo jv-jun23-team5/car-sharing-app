@@ -24,7 +24,7 @@ public class StripeService {
     private static final String CANCEL_ENDPOINT = "cancel";
     private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
     private static final String DEFAULT_CURRENCY = "USD";
-    private static final BigDecimal CONVERTING_TO_DOLLARS_VALUE = BigDecimal.valueOf(100);
+    private static final BigDecimal CONVERTING_TO_USD_VALUE = BigDecimal.valueOf(100);
 
     private final PaymentAmountHandlerStrategy handler;
     @Value("${stripe.secret}")
@@ -58,7 +58,7 @@ public class StripeService {
                                                                 .build()
                                                 )
                                                 .setUnitAmountDecimal(
-                                                        price.multiply(CONVERTING_TO_DOLLARS_VALUE)
+                                                        price.multiply(CONVERTING_TO_USD_VALUE)
                                                 )
                                                 .build()
                                 )

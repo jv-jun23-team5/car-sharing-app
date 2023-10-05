@@ -107,8 +107,13 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public List<RentalDto> getAllOverdueRentals() {
-        return null;
+        return rentalRepository.findAll().stream()
+                .filter(rental -> rental.getReturnDate().isBefore(LocalDateTime.now()) && rental.isActive())
+                .map(rentalMapper::toDto)
+                .collect(Collectors.toList());
     }
+
+
 
     private User getUser(String email) {
         return userRepository.findByEmail(email)

@@ -7,6 +7,7 @@ import com.project.carsharingapp.exception.NotValidPaymentProcessException;
 import com.project.carsharingapp.mapper.PaymentMapper;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
+import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
 import com.project.carsharingapp.service.RentalService;
@@ -67,16 +68,20 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable) {
         User user = userService.getByAuthentication(authentication);
 
-        return paymentRepository.findAll(pageable).stream()
-                .filter(payment -> payment.getRental().getUser().getId().equals(user.getId()))
-                .map(paymentMapper::toDto)
-                .collect(Collectors.toList());
+        if (isUserCustomer(user)) {
+            return paymentRepository.findAll(pageable).stream()
+                    .filter(payment -> payment.getRental().getUser().getId().equals(user.getId()))
+                    .map(paymentMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        return paymentRepository.findAll(pageable).stream().map(paymentMapper::toDto).toList();
     }
 
     @Override
     public List<Payment> getAllExpiredPayments() {
         return paymentRepository.findAll().stream()
-                .filter(payment -> payment.getExpiredTime().isBefore(Instant.now()))
+                .filter(payment -> !payment.getStatus().equals(Payment.Status.PAID) &&
+                                    payment.getExpiredTime().isBefore(Instant.now()))
                 .toList();
     }
 
@@ -101,10 +106,16 @@ public class PaymentServiceImpl implements PaymentService {
         if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.PAID)) {
             throw new NotValidPaymentProcessException("The rental is paid!");
         }
-
         if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.EXPIRED)) {
             throw new NotValidPaymentProcessException("The payment session is expired!");
         }
+    }
+
+    private boolean isUserCustomer(User user) {
+        return user.getRoles()
+                .stream()
+                .map(Role::getRoleName)
+                .anyMatch(roleName -> roleName.equals(Role.RoleName.ROLE_CUSTOMER));
     }
 
 }
