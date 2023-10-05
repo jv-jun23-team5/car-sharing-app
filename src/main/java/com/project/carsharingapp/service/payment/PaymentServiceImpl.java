@@ -1,16 +1,14 @@
-package com.project.carsharingapp.service.impl;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
 import com.project.carsharingapp.exception.EntityNotFoundException;
+import com.project.carsharingapp.exception.NotValidPaymentProcessException;
 import com.project.carsharingapp.mapper.PaymentMapper;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
-import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
-import com.project.carsharingapp.repository.RentalRepository;
-import com.project.carsharingapp.service.PaymentService;
 import com.project.carsharingapp.service.RentalService;
 import com.project.carsharingapp.service.UserService;
 import com.stripe.exception.StripeException;
@@ -26,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
-    private final static Long CONVERTING_TO_USD_VALUE = 100L;
+    private static final Long CONVERTING_TO_USD_VALUE = 100L;
 
     private final PaymentRepository paymentRepository;
     private final StripeService stripeService;
@@ -39,6 +37,12 @@ public class PaymentServiceImpl implements PaymentService {
                                      CreatePaymentSessionRequestDto requestDto) {
         Rental rental = getUserRentalById(authentication, requestDto.getRentalId());
         Payment.Type type = Payment.Type.valueOf(requestDto.getType());
+
+        checkIfPaymentSessionValid(rental);
+
+        if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.PAUSED)) {
+            return paymentMapper.toDto(paymentRepository.findByRentalId(rental.getId()).get());
+        }
 
         try {
             Session session = stripeService.createSession(rental, type);
@@ -62,18 +66,6 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable) {
         User user = userService.getByAuthentication(authentication);
 
-        if (
-                user.getRoles().stream()
-                        .map(Role::getRoleName)
-                        .anyMatch(roleName -> roleName.equals(Role.RoleName.ROLE_CUSTOMER))
-        ) {
-           return paymentRepository.findAll()
-                   .stream()
-                   .filter(payment -> payment.getRental().getUser().equals(user))
-                   .map(paymentMapper::toDto)
-                    .collect(Collectors.toList());
-        }
-
         return paymentRepository.findAll(pageable).stream()
                 .map(paymentMapper::toDto)
                 .collect(Collectors.toList());
@@ -86,12 +78,22 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setRental(rental);
         payment.setSessionUrl(session.getUrl());
         payment.setSessionId(session.getId());
-        payment.setAmount(BigDecimal.valueOf(session.getAmountTotal() / 100));
+        payment.setAmount(BigDecimal.valueOf(session.getAmountTotal() / CONVERTING_TO_USD_VALUE));
         return payment;
     }
 
     private Rental getUserRentalById(Authentication authentication, Long id) {
         User user = userService.getByAuthentication(authentication);
         return rentalService.getByUserAndId(user, id);
+    }
+
+    private void checkIfPaymentSessionValid(Rental rental) {
+        if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.PAID)) {
+            throw new NotValidPaymentProcessException("The rental is paid!");
+        }
+
+        if (paymentRepository.existsByRentalIdAndStatus(rental.getId(), Payment.Status.EXPIRED)) {
+            throw new NotValidPaymentProcessException("The payment session is expired!");
+        }
     }
 }

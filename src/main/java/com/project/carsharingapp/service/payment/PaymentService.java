@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
