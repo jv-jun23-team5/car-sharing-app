@@ -14,12 +14,14 @@ import com.project.carsharingapp.repository.RoleRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
+import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -46,13 +48,22 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, Long userId, Boolean isActive) {
-        return null;
+    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
     }
 
     @Override
-    public List<Rental> getAllByUserId(Long userId) {
-        return null;
+    public List<RentalDto> getByUserIdAndActiveStatus(
+                                                        Pageable pageable,
+                                                        Long userId,
+                                                        Boolean isActive
+    ) {
+        Specification<Rental> rentalSpecification = getSpecification(userId, isActive);
+        return rentalRepository.findAll(rentalSpecification, pageable)
+                .stream()
+                .map(rentalMapper::toDto)
+                .toList();
     }
 
     @Override
@@ -61,12 +72,6 @@ public class RentalServiceImpl implements RentalService {
                 .stream()
                 .map(rentalMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
-                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
     }
 
     @Override
@@ -108,7 +113,8 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public List<RentalDto> getAllOverdueRentals() {
         return rentalRepository.findAll().stream()
-                .filter(rental -> rental.getReturnDate().isBefore(LocalDateTime.now()) && rental.isActive())
+                .filter(rental -> rental.getReturnDate().isBefore(LocalDateTime.now())
+                                && rental.isActive())
                 .map(rentalMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -146,6 +152,23 @@ public class RentalServiceImpl implements RentalService {
 
     private boolean isValidActualReturnDate(Rental rental, LocalDateTime actualReturnData) {
         return rental.getRentalDate().isBefore(actualReturnData);
+    }
+
+    private Specification<Rental> getSpecification(Long userId, Boolean isActive) {
+        return (root, query, criteriaBuilder) -> {
+            Predicate userPredicate = (userId != null)
+                    ? criteriaBuilder.equal(root.get("user").get("id"), userId)
+                    : criteriaBuilder.conjunction();
+            if (isActive != null) {
+                if (isActive) {
+                    return criteriaBuilder.and(userPredicate,
+                            criteriaBuilder.isTrue(root.get("isActive")));
+                }
+                return criteriaBuilder.and(userPredicate,
+                        criteriaBuilder.isFalse(root.get("isActive")));
+            }
+            return userPredicate;
+        };
     }
 
     private void sendNotification(Rental rental, Authentication authentication) {

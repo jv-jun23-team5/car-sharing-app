@@ -47,7 +47,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleAllErrors(
+    protected ResponseEntity<Object> handleEntityNotFoundException(
             EntityNotFoundException exception) {
         ErrorResponseDto response = new ErrorResponseDto(
                 LocalDateTime.now(),
@@ -70,7 +70,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(RuntimeException.class)
-    protected ResponseEntity<Object> handleAllErrors(
+    protected ResponseEntity<Object> handleRuntimeException(
             RuntimeException exception) {
         ErrorResponseDto response = new ErrorResponseDto(
                 LocalDateTime.now(),

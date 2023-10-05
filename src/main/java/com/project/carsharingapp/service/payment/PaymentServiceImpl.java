@@ -10,7 +10,6 @@ import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
-import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
 import com.project.carsharingapp.service.UserService;
@@ -85,8 +84,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> getAllExpiredPayments() {
         return paymentRepository.findAll().stream()
-                .filter(payment -> !payment.getStatus().equals(Payment.Status.PAID) &&
-                                    payment.getExpiredTime().isBefore(Instant.now()))
+                .filter(payment -> !payment.getStatus().equals(Payment.Status.PAID)
+                                    && payment.getExpiredTime().isBefore(Instant.now()))
                 .toList();
     }
 
@@ -122,7 +121,4 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(Role::getRoleName)
                 .anyMatch(roleName -> roleName.equals(Role.RoleName.ROLE_CUSTOMER));
     }
-
-
-
 }

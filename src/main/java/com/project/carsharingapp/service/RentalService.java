@@ -13,11 +13,9 @@ public interface RentalService {
 
     List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable, Long userId, Boolean isActive);
 
-    List<Rental> getAllByUserId(Long userId);
+    Rental getByUserIdAndActiveStatus(Long userId, boolean isActive);
 
     List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive);
-
-    Rental getByUserIdAndActiveStatus(Long userId, boolean isActive);
 
     Rental getByUserAndId(User user, Long id);
 

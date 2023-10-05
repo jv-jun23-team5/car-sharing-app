@@ -3,7 +3,6 @@ package com.project.carsharingapp.controller;
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
 import com.project.carsharingapp.model.Payment;
-import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.payment.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

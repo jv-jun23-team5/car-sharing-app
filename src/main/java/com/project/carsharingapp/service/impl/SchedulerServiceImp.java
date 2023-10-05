@@ -1,6 +1,5 @@
 package com.project.carsharingapp.service.impl;
 
-import com.project.carsharingapp.dto.rental.RentalDto;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.User;
 import com.project.carsharingapp.repository.PaymentRepository;
@@ -8,7 +7,6 @@ import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.NotificationService;
 import com.project.carsharingapp.service.RentalService;
 import com.project.carsharingapp.service.SchedulerService;
-import com.project.carsharingapp.service.UserService;
 import com.project.carsharingapp.service.payment.PaymentService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
