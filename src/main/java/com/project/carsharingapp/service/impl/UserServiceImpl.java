@@ -10,6 +10,7 @@ import com.project.carsharingapp.exception.RegistrationException;
 import com.project.carsharingapp.mapper.UserMapper;
 import com.project.carsharingapp.model.Role;
 import com.project.carsharingapp.model.User;
+import com.project.carsharingapp.repository.RentalRepository;
 import com.project.carsharingapp.repository.RoleRepository;
 import com.project.carsharingapp.repository.UserRepository;
 import com.project.carsharingapp.service.RoleService;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RentalRepository rentalRepository;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -74,6 +77,20 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("Can't find a user by email: " + email)
         );
+    }
+
+    @Override
+    public User getByAuthentication(Authentication auth) {
+        return userRepository.findByEmail(auth.getName()).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a user by email: " + auth.getName())
+        );
+    }
+
+    @Override
+    public User getUserByRentalId(Long rentalId) {
+        return rentalRepository.findById(rentalId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by id: " + rentalId)
+        ).getUser();
     }
 
     private User getCurrentUser(Long id) {

@@ -1,5 +1,6 @@
-package com.project.carsharingapp.service.impl;
+package com.project.carsharingapp.service.payment;
 
+import com.project.carsharingapp.model.Car;
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.model.Rental;
 import com.project.carsharingapp.service.PaymentAmountHandler;
@@ -24,6 +25,8 @@ public class StripeService {
     private static final String CANCEL_ENDPOINT = "cancel";
     private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
     private static final String DEFAULT_CURRENCY = "USD";
+    private static final BigDecimal CONVERTING_TO_USD_VALUE = BigDecimal.valueOf(100);
+    private static final String PAYMENT_SESSION_TITLE = "Renting a car";
 
     private final PaymentAmountHandlerStrategy handler;
     @Value("${stripe.secret}")
@@ -39,8 +42,8 @@ public class StripeService {
     }
 
     public Session createSession(Rental rental, Payment.Type type) throws StripeException {
-        String productName = rental.getCar().getModel();
-        Long price = calculateTotalAmount(rental, type);
+        String description = createProductInfo(rental.getCar());
+        BigDecimal price = calculateTotalAmount(rental, type);
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(createUrl(SUCCESS_ENDPOINT))
@@ -53,18 +56,29 @@ public class StripeService {
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData
                                                                 .ProductData.builder()
-                                                                .setName(productName)
+                                                                .setName(PAYMENT_SESSION_TITLE)
+                                                                .setDescription(description)
                                                                 .build()
                                                 )
-                                                .setUnitAmount(price)
+                                                .setUnitAmountDecimal(
+                                                        price.multiply(CONVERTING_TO_USD_VALUE)
+                                                )
                                                 .build()
                                 )
                                 .setQuantity(STANDARD_QUANTITY_OF_RENTAL_CART)
                                 .build()
                 )
                 .build();
-
         return Session.create(params);
+    }
+
+    private String createProductInfo(Car car) {
+        return new StringBuilder().append("Pay for renting the car. Car brand: ")
+                .append(car.getBrand())
+                .append(". Model: ")
+                .append(car.getModel())
+                .toString();
+
     }
 
     private String createUrl(String type) {
@@ -78,7 +92,7 @@ public class StripeService {
                 .toUriString();
     }
 
-    private Long calculateTotalAmount(Rental rental, Payment.Type type) {
+    private BigDecimal calculateTotalAmount(Rental rental, Payment.Type type) {
         PaymentAmountHandler amountHandler = handler.getHandler(type);
         int rentalDays = getNumberOfRentalDays(rental);
         BigDecimal dailyFee = rental.getCar().getDailyFee();

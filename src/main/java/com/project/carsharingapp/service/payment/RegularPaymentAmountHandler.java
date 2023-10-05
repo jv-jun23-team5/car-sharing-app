@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.impl;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.service.PaymentAmountHandler;
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegularPaymentAmountHandler implements PaymentAmountHandler {
     @Override
-    public Long getPaymentAmount(BigDecimal dailyFee, int numberOfDays) {
-        return dailyFee.longValue() * numberOfDays;
+    public BigDecimal getPaymentAmount(BigDecimal dailyFee, int numberOfDays) {
+        return dailyFee.multiply(BigDecimal.valueOf(numberOfDays));
     }
 
     @Override

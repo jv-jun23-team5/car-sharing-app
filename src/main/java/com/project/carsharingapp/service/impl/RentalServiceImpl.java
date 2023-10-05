@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -47,14 +48,38 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalDto> getByUserIdAndActiveStatus(Pageable pageable,
-                                                      Long userId,
-                                                      Boolean isActive) {
+    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
+    }
+
+    @Override
+    public List<RentalDto> getByUserIdAndActiveStatus(
+                                                        Pageable pageable,
+                                                        Long userId,
+                                                        Boolean isActive
+    ) {
         Specification<Rental> rentalSpecification = getSpecification(userId, isActive);
         return rentalRepository.findAll(rentalSpecification, pageable)
                 .stream()
                 .map(rentalMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
+        return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
+                .stream()
+                .map(rentalMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Rental getByUserAndId(User user, Long id) {
+        return rentalRepository.findByUserIdAndRentalId(user.getId(), id).orElseThrow(
+                () -> new EntityNotFoundException("Can't find a rental with id: " + id
+                                                    + " for the user")
+        );
     }
 
     @Override
@@ -68,25 +93,30 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto setActualReturnDay(Authentication authentication) {
         User user = getUser(authentication.getName());
+        Rental rental1 = rentalRepository.findByUserIdAndActiveStatus(
+                        user.getId(), true)
+                .orElseThrow(() -> new EntityNotFoundException(" Active rental "
+                        + "not found by id: " + user.getId()));
+        sendNotification(rental1, authentication);
         return rentalRepository.findByUserIdAndActiveStatus(user.getId(), true)
                 .map(rental -> {
-                    isCorrectReturnDate(rental);
                     rental.setActualReturnDate(LocalDateTime.now());
                     rental.setActive(false);
                     rentalRepository.save(rental);
                     increaseCarInventory(rental.getCar().getId());
-                    sendNotification(rental, authentication);
                     return rentalMapper.toDto(rental);
                 })
                 .orElseThrow(() -> new EntityNotFoundException(" Active rental "
                         + "not found by id: " + user.getId()));
     }
 
-    private static void isCorrectReturnDate(Rental rental) {
-        if (rental.getRentalDate().isAfter(LocalDateTime.now())) {
-            throw new RuntimeException("The car can't be returned"
-                    + " before rental date");
-        }
+    @Override
+    public List<RentalDto> getAllOverdueRentals() {
+        return rentalRepository.findAll().stream()
+                .filter(rental -> rental.getReturnDate().isBefore(LocalDateTime.now())
+                                && rental.isActive())
+                .map(rentalMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private User getUser(String email) {
@@ -104,6 +134,11 @@ public class RentalServiceImpl implements RentalService {
     private void decreaseCarInventory(Long carId) {
         Car car = getCar(carId);
         Integer existedInventory = car.getInventory();
+
+        if (existedInventory < 0) {
+            throw new RuntimeException("Can't make a rental because there are not enough cars");
+        }
+
         car.setInventory(existedInventory - 1);
         carRepository.save(car);
     }
@@ -113,6 +148,10 @@ public class RentalServiceImpl implements RentalService {
         Integer existedInventory = car.getInventory();
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
+    }
+
+    private boolean isValidActualReturnDate(Rental rental, LocalDateTime actualReturnData) {
+        return rental.getRentalDate().isBefore(actualReturnData);
     }
 
     private Specification<Rental> getSpecification(Long userId, Boolean isActive) {

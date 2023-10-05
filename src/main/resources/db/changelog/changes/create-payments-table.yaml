@@ -45,3 +45,8 @@ databaseChangeLog:
                   type: decimal
                   constraints:
                     nullable: false
+              - column:
+                  name: expired_time
+                  type: timestamp
+                  constraints:
+                    nullable: false

@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.impl;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.service.PaymentAmountHandler;

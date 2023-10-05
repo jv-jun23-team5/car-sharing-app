@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.dto.payment.CreatePaymentSessionRequestDto;
 import com.project.carsharingapp.dto.payment.PaymentResponseDto;
@@ -14,4 +14,6 @@ public interface PaymentService {
     PaymentResponseDto updateStatus(String sessionId, Payment.Status status);
 
     List<PaymentResponseDto> getAll(Authentication authentication, Pageable pageable);
+
+    List<Payment> getAllExpiredPayments();
 }

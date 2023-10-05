@@ -7,6 +7,7 @@ import com.project.carsharingapp.dto.user.UserRegistrationRequestDto;
 import com.project.carsharingapp.dto.user.UserResponseDto;
 import com.project.carsharingapp.exception.RegistrationException;
 import com.project.carsharingapp.model.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,4 +22,8 @@ public interface UserService {
     UserResponseDto getById(Long id);
 
     User getByEmail(String email);
+
+    User getByAuthentication(Authentication auth);
+
+    User getUserByRentalId(Long rentalId);
 }

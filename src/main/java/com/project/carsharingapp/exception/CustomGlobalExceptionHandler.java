@@ -46,19 +46,8 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    protected ResponseEntity<Object> handleAllErrors(
-            RuntimeException exception) {
-        ErrorResponseDto response = new ErrorResponseDto(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                new String[]{exception.getMessage()}
-        );
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleAllErrors(
+    protected ResponseEntity<Object> handleEntityNotFoundException(
             EntityNotFoundException exception) {
         ErrorResponseDto response = new ErrorResponseDto(
                 LocalDateTime.now(),
@@ -66,6 +55,29 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
                 new String[]{exception.getMessage()}
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NotValidPaymentProcessException.class)
+    protected ResponseEntity<Object> handleNotValidPaymentProcessException(
+            NotValidPaymentProcessException exception
+    ) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST,
+                new String[]{exception.getMessage()}
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    protected ResponseEntity<Object> handleRuntimeException(
+            RuntimeException exception) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                new String[]{exception.getMessage()}
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private String getErrorMessage(ObjectError e) {

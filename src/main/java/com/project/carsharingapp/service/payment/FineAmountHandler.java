@@ -1,4 +1,4 @@
-package com.project.carsharingapp.service.impl;
+package com.project.carsharingapp.service.payment;
 
 import com.project.carsharingapp.model.Payment;
 import com.project.carsharingapp.service.PaymentAmountHandler;
@@ -10,8 +10,8 @@ public class FineAmountHandler implements PaymentAmountHandler {
     private static final BigDecimal FINE_MULTIPLIER = BigDecimal.valueOf(1.25);
 
     @Override
-    public Long getPaymentAmount(BigDecimal dailyFee, int numberOfDays) {
-        return dailyFee.multiply(FINE_MULTIPLIER).longValue() * numberOfDays;
+    public BigDecimal getPaymentAmount(BigDecimal dailyFee, int numberOfDays) {
+        return dailyFee.multiply(FINE_MULTIPLIER).multiply(BigDecimal.valueOf(numberOfDays));
     }
 
     @Override
