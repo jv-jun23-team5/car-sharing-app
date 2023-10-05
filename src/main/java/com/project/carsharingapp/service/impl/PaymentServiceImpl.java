@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+    private final static Long CONVERTING_TO_USD_VALUE = 100L;
+
     private final PaymentRepository paymentRepository;
     private final StripeService stripeService;
     private final UserService userService;
@@ -84,7 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setRental(rental);
         payment.setSessionUrl(session.getUrl());
         payment.setSessionId(session.getId());
-        payment.setAmount(BigDecimal.valueOf(session.getAmountTotal()));
+        payment.setAmount(BigDecimal.valueOf(session.getAmountTotal() / 100));
         return payment;
     }
 

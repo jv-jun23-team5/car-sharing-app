@@ -24,6 +24,7 @@ public class StripeService {
     private static final String CANCEL_ENDPOINT = "cancel";
     private static final Long STANDARD_QUANTITY_OF_RENTAL_CART = 1L;
     private static final String DEFAULT_CURRENCY = "USD";
+    private static final BigDecimal CONVERTING_TO_DOLLARS_VALUE = BigDecimal.valueOf(100);
 
     private final PaymentAmountHandlerStrategy handler;
     @Value("${stripe.secret}")
@@ -40,7 +41,7 @@ public class StripeService {
 
     public Session createSession(Rental rental, Payment.Type type) throws StripeException {
         String productName = rental.getCar().getModel();
-        Long price = calculateTotalAmount(rental, type);
+        BigDecimal price = calculateTotalAmount(rental, type);
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(createUrl(SUCCESS_ENDPOINT))
@@ -56,14 +57,15 @@ public class StripeService {
                                                                 .setName(productName)
                                                                 .build()
                                                 )
-                                                .setUnitAmount(price)
+                                                .setUnitAmountDecimal(
+                                                        price.multiply(CONVERTING_TO_DOLLARS_VALUE)
+                                                )
                                                 .build()
                                 )
                                 .setQuantity(STANDARD_QUANTITY_OF_RENTAL_CART)
                                 .build()
                 )
                 .build();
-
         return Session.create(params);
     }
 
@@ -78,7 +80,7 @@ public class StripeService {
                 .toUriString();
     }
 
-    private Long calculateTotalAmount(Rental rental, Payment.Type type) {
+    private BigDecimal calculateTotalAmount(Rental rental, Payment.Type type) {
         PaymentAmountHandler amountHandler = handler.getHandler(type);
         int rentalDays = getNumberOfRentalDays(rental);
         BigDecimal dailyFee = rental.getCar().getDailyFee();
