@@ -1,5 +1,5 @@
 <div align="center">
-    <h1> Awesome Car Sharing Service <img src="https://drive.google.com/uc?export=view&id=1EzaEiJA7ebELv237AoRqIOCxuVH6TDYL" align="center" width="60" /></h1>
+    <h1> Quick Drive Rentals <img src="https://drive.google.com/uc?export=view&id=1EzaEiJA7ebELv237AoRqIOCxuVH6TDYL" align="center" width="60" /></h1>
 </div>
 
 
@@ -11,14 +11,14 @@
     <a href="#setup">Setup</a> |
     <a href="#project structure">Project Structure</a> |
     <a href="#configure stripe api">How to configure Stripe API</a> |
-    <a href="#authors">Authors:</a>
+    <a href="#authors">Authors</a>
 </div>
    
 
 <div id="introduction">
     <br>
     <p>
-       The Car Sharing Service is a cutting-edge RESTful web application 
+       The Quick Drive Rentals is a cutting-edge RESTful web application 
 designed to meet car rental demands. Built with Spring Boot and Java, the 
 application adheres rigorously to the REST architecture principles, ensuring 
 stateless interactions between clients and the server. An intuitive registration 
@@ -33,7 +33,7 @@ incorporated a Telegram bot to relay timely notifications to users about rental 
 payments, and any vehicle condition alterations. This feature provides quick access to vital 
 information, elevating the rental experience.
 
-The Car Sharing Service emerges as a modern and efficient solution for car rentals, providing 
+The Quick Drive Rentals emerges as a modern and efficient solution for car rentals, providing 
 speed, safety, and convenience to all its esteemed users.
     </p>
 </div>
