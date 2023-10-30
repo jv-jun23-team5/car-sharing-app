@@ -48,12 +48,6 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public Rental getByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return rentalRepository.findByUserIdAndActiveStatus(userId, isActive).orElseThrow(
-                () -> new EntityNotFoundException("Can't find a rental by user id: " + userId));
-    }
-
-    @Override
     public List<RentalDto> getByUserIdAndActiveStatus(
                                                         Pageable pageable,
                                                         Long userId,
@@ -64,14 +58,6 @@ public class RentalServiceImpl implements RentalService {
                 .stream()
                 .map(rentalMapper::toDto)
                 .toList();
-    }
-
-    @Override
-    public List<RentalDto> getAllByUserIdAndActiveStatus(Long userId, boolean isActive) {
-        return rentalRepository.findAllByUserIdAndActiveStatus(userId, isActive)
-                .stream()
-                .map(rentalMapper::toDto)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -144,10 +130,6 @@ public class RentalServiceImpl implements RentalService {
         Integer existedInventory = car.getInventory();
         car.setInventory(existedInventory + 1);
         carRepository.save(car);
-    }
-
-    private boolean isValidActualReturnDate(Rental rental, LocalDateTime actualReturnData) {
-        return rental.getRentalDate().isBefore(actualReturnData);
     }
 
     private Specification<Rental> getSpecification(Long userId, Boolean isActive) {
