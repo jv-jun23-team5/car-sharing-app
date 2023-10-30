@@ -25,7 +25,7 @@ public class SchedulerServiceImp implements SchedulerService {
     private final NotificationService notificationService;
 
     @Override
-    @Scheduled(cron = "0/15 0 * * * MON-FRI")
+    @Scheduled(cron = "0/1 0 * * * MON-FRI")
     public void checkOverdueRentals() {
         rentalService.getAllOverdueRentals()
                 .forEach(
